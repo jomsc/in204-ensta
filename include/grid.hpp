@@ -16,13 +16,16 @@ class Grid {
         int size_cell;
         int line_thickness;
 
-        std::vector<Piece> pieces;
+        
 
     public:
+        std::vector<Piece> pieces;
         void draw(sf::RenderWindow *window);
-        //void update(int input);
-        //void spawn();
-        //void check_lines();
+        void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
+        void spawn(int type);
+        void update(int input);
+
+        //std::vector<int> check_lines();
         //void clear_line(int line);
 
         Grid() {

@@ -1,19 +1,34 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
+#include <SFML/Window/Keyboard.hpp>
+
 #include "../include/piece.hpp"
 #include "../include/grid.hpp"
+
+#include <vector>
+#include <cstdlib>
+#include <iostream>
+
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 1000), "Tetris!");
+    srand(time(0));
 
     sf::Clock clock;
+    sf::Clock update_clock;
+    sf::Clock rotate_clock;
+
     Grid grid = Grid();
+    grid.spawn(rand()%7);
+
+    int input = -1;
 
     sf::RectangleShape bg(sf::Vector2f(800, 1000));
     sf::Color bg_color = sf::Color(75, 75, 75);
     bg.setFillColor(bg_color);
 
+    update_clock.restart();
+    rotate_clock.restart();
     while (window.isOpen())
     {
         clock.restart();
@@ -25,6 +40,34 @@ int main()
                 window.close();
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            input = 0;
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            input = 1;
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            input = 2;
+        } else  {
+            input = -1;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && rotate_clock.getElapsedTime().asMilliseconds() > 150) {
+            grid.pieces[0].rotate(0);
+            rotate_clock.restart();
+        } 
+
+
+        if ((input == 0 || input == 1) 
+            && update_clock.getElapsedTime().asMilliseconds() > 500) {
+            grid.update(input);
+            grid.update(2);
+            update_clock.restart();
+        } else if (input == 2 && update_clock.getElapsedTime().asMilliseconds() > 150) {
+            grid.update(2);
+            update_clock.restart();
+        } else if (update_clock.getElapsedTime().asMilliseconds() > 500) {
+            grid.update(2);
+            update_clock.restart();
+        }
 
         window.clear();
         window.draw(bg);
@@ -32,7 +75,7 @@ int main()
         window.display();
 
         sf::Time elapsed = clock.getElapsedTime();
-        std::cout << "Render time : " << elapsed.asMilliseconds() << " ms" << std::endl;
+        //std::cout << "Render time : " << elapsed.asMilliseconds() << " ms" << std::endl;
     }
 
     return 0;
