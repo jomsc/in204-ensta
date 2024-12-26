@@ -77,17 +77,39 @@ class Piece {
 
         ~Piece() {}
 
-        void rotate(bool sens) {
-            this->orientation = (sens ? this->orientation++ : this->orientation--) % 4;
+        void rotate() {
+            switch (this->type) {
+                case 0:
+                    return;
+                case 1:
+                    this->orientation = !this->orientation;
+                    break;
+                case 2:
+                    this->orientation = !this->orientation;
+                    break;
+                case 3:
+                    this->orientation = !this->orientation;
+                    break;
+                case 4:
+                    this->orientation = (this->orientation+1) % 4;
+                    break;
+                case 5:
+                    this->orientation = (this->orientation+1) % 4;
+                    break;
+                case 6:
+                    this->orientation = (this->orientation+1) % 4;
+                    break;
+                default:
+                    return;
+
+            }
+
             PieceData piece_data = PieceData();
-            
 
             for (int i = 0; i < 16; i++) {
                 this->shape[i] = piece_data.shape[i+piece_data.offsets[this->type]+this->orientation*16];
             }
             piece_data.~PieceData();
-
-            std::cout << "Piece rotated" << std::endl;
         }
 };
 

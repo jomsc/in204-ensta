@@ -51,7 +51,7 @@ int main()
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && rotate_clock.getElapsedTime().asMilliseconds() > 150) {
-            grid.pieces[0].rotate(0);
+            grid.pieces[0].rotate();
             rotate_clock.restart();
         } 
 

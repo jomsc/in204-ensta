@@ -6,7 +6,7 @@ void Grid::draw(sf::RenderWindow *window) {
     // on dessine la grille
     
     // on dessine les lignes horizontales
-    for (int i=0;i<=numrows;i++){
+    for (int i=0;i<=numrows;i++) {
         int size = numcols*size_cell+(numcols)*line_thickness;
         sf::RectangleShape ligne(sf::Vector2f(size, line_thickness));
         ligne.setPosition(x_offset, y_offset+i*(size_cell+line_thickness));
@@ -15,7 +15,7 @@ void Grid::draw(sf::RenderWindow *window) {
     }
 
     // on dessine les lignes verticales
-    for (int i=0;i<=numcols;i++){
+    for (int i=0;i<=numcols;i++) {
         int size = numrows*size_cell+(numrows+1)*line_thickness;
         sf::RectangleShape ligne(sf::Vector2f(size, line_thickness));
         ligne.setPosition(x_offset+i*(size_cell+line_thickness), y_offset);
@@ -77,7 +77,6 @@ void Grid::update(int input) {
                     if (pieces[i].y < numrows-4)
                         pieces[i].y += 1;
                     break;
-
             }
         }
     }
