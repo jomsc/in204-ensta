@@ -1,9 +1,7 @@
 #ifndef PIECES_DATA_HPP
 #define PIECES_DATA_HPP
 #include <SFML/Graphics/Color.hpp>
-#include <iostream>
-#include <cstdlib>
-
+#include <vector>
 
 class PieceData {
     public:
@@ -110,6 +108,15 @@ class PieceData {
             1, 1, 0, 0,
             1, 0, 0, 0,
             0, 0, 0, 0
+        };
+        std::vector<sf::Color> colors = {
+            sf::Color::White,
+            sf::Color::Green,
+            sf::Color::Blue,
+            sf::Color::Magenta,
+            sf::Color::Red,
+            sf::Color::Cyan,
+            sf::Color::Yellow
         };
 
         ~PieceData() {}

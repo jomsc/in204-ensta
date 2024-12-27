@@ -20,7 +20,7 @@ int main()
 
     Grid grid = Grid();
     grid.spawn(rand()%7);
-
+    
     int input = -1;
 
     sf::RectangleShape bg(sf::Vector2f(800, 1000));
@@ -49,8 +49,8 @@ int main()
         } else  {
             input = -1;
         }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && rotate_clock.getElapsedTime().asMilliseconds() > 150) {
+    
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && rotate_clock.getElapsedTime().asMilliseconds() > 300) {
             grid.pieces[0].rotate();
             rotate_clock.restart();
         } 
@@ -69,11 +69,15 @@ int main()
             update_clock.restart();
         }
 
+        if (grid.pieces.empty()) {
+            grid.spawn(rand()%7);
+        }
+        
         window.clear();
         window.draw(bg);
         grid.draw(&window);
         window.display();
-
+        
         sf::Time elapsed = clock.getElapsedTime();
         //std::cout << "Render time : " << elapsed.asMilliseconds() << " ms" << std::endl;
     }

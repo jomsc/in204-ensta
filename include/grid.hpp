@@ -11,7 +11,8 @@ class Grid {
         int y_offset;
         int numrows;
         int numcols;
-        std::vector<int> cells;
+        std::vector<int> cells; 
+        // grounded piece : type+1, falling piece : 0, empty : -1
 
         int size_cell;
         int line_thickness;
@@ -19,7 +20,7 @@ class Grid {
         
 
     public:
-        std::vector<Piece> pieces;
+        std::vector<Piece> pieces; // pieces qui tombent
         void draw(sf::RenderWindow *window);
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
@@ -37,7 +38,7 @@ class Grid {
 
             for (int i = 0; i < numrows; i++) {
                 for (int j = 0; j < numcols; j++) {
-                    cells[i*numcols+j] = 0;
+                    cells[i*numcols+j] = -1;
                 }
             }
 

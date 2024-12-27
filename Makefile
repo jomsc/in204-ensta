@@ -1,9 +1,9 @@
 all:
 	g++ -c src/*.cpp -I include
-	g++ *.o -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
+	g++ *.o -o tetris -lsfml-graphics -lsfml-window -lsfml-system
 	
 clean:
-	rm -f *.o sfml-app
+	rm -f *.o tetris
 
 run: all
-	./sfml-app
+	./tetris
