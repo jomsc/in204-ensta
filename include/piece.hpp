@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include "pieces_data.hpp"
-#include <iostream>
 
 class Piece {
     public:

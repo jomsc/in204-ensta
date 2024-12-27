@@ -2,7 +2,6 @@
 #define GRID_HPP
 
 #include "piece.hpp"
-#include <vector>
 #include <SFML/Graphics.hpp>
 
 class Grid {
@@ -25,9 +24,8 @@ class Grid {
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
         void update(int input);
-
-        //std::vector<int> check_lines();
-        //void clear_line(int line);
+        std::vector<int> check_lines();
+        void clear_line(int line);
 
         Grid() {
             x_offset = 10;

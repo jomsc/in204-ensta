@@ -1,6 +1,5 @@
 #include "../include/grid.hpp"
 #include <iterator>
-#include <iostream>
 
 void Grid::draw(sf::RenderWindow *window) {
     // on dessine la grille
@@ -180,5 +179,32 @@ void Grid::update(int input) {
                 }
             }
         }
+    }
+}
+
+std::vector<int> Grid::check_lines() {
+    std::vector<int> lines;
+    for (int i=0;i<numrows;i++) {
+        bool full = true;
+        for (int j=0;j<numcols;j++) {
+            if (cells[i*numcols+j] <= 0) {
+                full = false;
+            }
+        }
+        if (full) {
+            lines.push_back(i);
+        }
+    }
+    return lines;
+}
+
+void Grid::clear_line(int line) {
+    for (int i=line;i>0;i--) {
+        for (int j=0;j<numcols;j++) {
+            cells[i*numcols+j] = cells[(i-1)*numcols+j];
+        }
+    }
+    for (int j=0;j<numcols;j++) {
+        cells[j] = -1;
     }
 }

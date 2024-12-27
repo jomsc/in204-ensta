@@ -4,7 +4,6 @@
 #include "../include/piece.hpp"
 #include "../include/grid.hpp"
 
-#include <vector>
 #include <cstdlib>
 #include <iostream>
 
@@ -55,7 +54,6 @@ int main()
             rotate_clock.restart();
         } 
 
-
         if ((input == 0 || input == 1) 
             && update_clock.getElapsedTime().asMilliseconds() > 500) {
             grid.update(input);
@@ -71,6 +69,13 @@ int main()
 
         if (grid.pieces.empty()) {
             grid.spawn(rand()%7);
+        }
+
+        std::vector<int> lines = grid.check_lines();
+        if (!lines.empty()) {
+            for (auto line : lines) {
+                grid.clear_line(line);
+            }
         }
         
         window.clear();
