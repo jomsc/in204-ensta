@@ -28,8 +28,7 @@ int main()
 
     update_clock.restart();
     rotate_clock.restart();
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
         clock.restart();
 
         sf::Event event;

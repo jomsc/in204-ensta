@@ -69,7 +69,6 @@ class Piece {
                     break;
                 default:
                     return;
-
             }
 
             PieceData piece_data = PieceData();
