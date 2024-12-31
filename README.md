@@ -8,7 +8,6 @@
 - [ ] menu principal :
   - [ ] un seul joueur:
     - [ ] mode classique
-    - [ ] mode personnages
   - [ ] multijoueur en LAN :
     - [ ] mode classique 
     - [ ] mode personnage
