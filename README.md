@@ -6,9 +6,12 @@
 - [ ] niveau
 - [ ] clean UI 
 - [ ] menu principal :
-  - [ ] mode classique
-  - [ ] mode multijoueur (join ou host)
-  - [ ] mode avec personnages
+  - [ ] un seul joueur:
+    - [ ] mode classique
+    - [ ] mode personnages
+  - [ ] multijoueur en LAN :
+    - [ ] mode classique 
+    - [ ] mode personnage
   - [ ] bouton quit
   - [ ] musique
 
@@ -17,8 +20,13 @@
   - [ ] modifier la classe grid etc. 
   - [ ] menu pour choisir mode classique/reseau et host/join
 
+On utilise ENet 1.3.18
+avant la première compilation : 
+aller dans le dossier enet/ et exécuter ```./configure && make && make install``` puis ```sudo ldconfig /usr/local/lib```
+
+ensuite c'est bon :)
+
 [state-synchro](https://gafferongames.com/post/state_synchronization/)
-[networking library](https://github.com/mas-bandwidth/netcode)
 
 ## Partie Simon
 - [ ] Finir le jeu solo :
@@ -36,4 +44,4 @@
 
 
 
-Par Simon Drouet et Joseph Mouscadet
+#### Par Simon Drouet et Joseph Mouscadet

@@ -1,9 +1,15 @@
-all:
-	g++ -c src/*.cpp -I include
-	g++ *.o -o tetris -lsfml-graphics -lsfml-window -lsfml-system
-	
-clean:
-	rm -f *.o tetris
+CFLAGS = -I include -I /usr/local/include
+LDFLAGS = -L /usr/local/lib -lsfml-graphics -lsfml-window -lsfml-system -lenet
 
-run: all
-	./tetris
+SRC = $(wildcard src/*.cpp)
+OBJ = $(SRC:.cpp=.o)
+TARGET = tetris
+
+$(TARGET): $(OBJ)
+	g++ $^ -o $@ $(LDFLAGS)
+
+%.o: %.cpp
+	g++ $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJ) $(TARGET)
