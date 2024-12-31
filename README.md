@@ -18,6 +18,7 @@
   - [ ] menu pour choisir mode classique/reseau et host/join
 
 [state-synchro](https://gafferongames.com/post/state_synchronization/)
+[networking library](https://github.com/mas-bandwidth/netcode)
 
 ## Partie Simon
 - [ ] Finir le jeu solo :
