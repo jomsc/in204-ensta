@@ -5,5 +5,5 @@ all:
 clean:
 	rm -f *.o tetris
 
-run: all
+run: all 
 	./tetris
