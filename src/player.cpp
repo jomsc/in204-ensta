@@ -1,4 +1,5 @@
 #include "../include/player.hpp"
+#include <iostream>
 
 void Player::display(sf::RenderWindow *window) {
     grid.draw(window);
@@ -45,5 +46,31 @@ void Player::update() {
         for (auto line : lines) {
             grid.clear_line(line);
         }
+    }
+}
+
+void OnlinePlayer::connect_to_server(ENetAddress address) {
+    ENetEvent event;
+    ENetPeer *peer;
+    
+    /* Initiate the connection, allocating the two channels 0 and 1. */
+    peer = enet_host_connect (this->client, & address, 2, 0);    
+    
+    if (peer == NULL) {
+    fprintf (stderr,  "ENet connection initialization peer error.\n");
+    exit (EXIT_FAILURE);
+    }
+    
+    /* Wait up to 5 seconds for the connection attempt to succeed. */
+    if (enet_host_service (client, & event, 5000) > 0 &&
+        event.type == ENET_EVENT_TYPE_CONNECT) {
+        puts ("Connection to some.server.net:1234 succeeded.");
+    } else {
+        /* Either the 5 seconds are up or a disconnect event was */
+        /* received. Reset the peer in the event the 5 seconds   */
+        /* had run out without any significant event.            */
+        enet_peer_reset (peer);
+    
+        puts ("Connection to some.server.net:1234 failed.");
     }
 }

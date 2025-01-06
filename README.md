@@ -12,7 +12,7 @@
     - [ ] mode classique 
     - [ ] mode personnage
   - [ ] bouton quit
-  - [ ] musique
+- [ ] musique
 
 ## Partie Joseph
 - [ ] netcode p2p :

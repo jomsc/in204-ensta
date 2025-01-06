@@ -1,5 +1,5 @@
 paquets envoyés {
-- header
+- header (tete, version, taille)
 - cells pour chaque joueur (220 int)
 - pieces pour chaque joueur (5 int * nombre de pieces)
 - input (1 int)

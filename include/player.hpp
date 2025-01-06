@@ -47,8 +47,28 @@ class OnlinePlayer : public Player {
         bool connected;
 
     public:
-        void receive_packet();
+        void handle_received_packets();
         void send_packet();
+        void generate_packet();
+        void connect_to_server(ENetAddress address);
+
+        OnlinePlayer() {
+            if (enet_initialize () != 0) {
+                fprintf (stderr, "ENet initialization error.\n");
+            }
+
+            client = enet_host_create(NULL, 1, 2, 0, 0);
+
+            if (client == NULL) {
+                fprintf (stderr, "ENet client host creation error.\n");
+                exit(EXIT_FAILURE);
+            } 
+        }
+
+        ~OnlinePlayer() {
+            enet_host_destroy(client);
+            enet_deinitialize();
+        }
 };
 
 class RivalsPlayer : public OnlinePlayer {
