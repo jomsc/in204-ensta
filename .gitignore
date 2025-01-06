@@ -1,3 +1,4 @@
 src/*.o
+build
 
 tetris
