@@ -1,5 +1,5 @@
-paquets envoyés {
-- header (tete, version, taille)
+paquets jeu envoyés {
+- header (tete, type, version, taille)
 - cells pour chaque joueur (220 int)
 - pieces pour chaque joueur (5 int * nombre de pieces)
 - input (1 int)
@@ -17,3 +17,24 @@ verrouiller le simulation rate à 60 fps
 sinon, envoyer les CHANGEMENTS
 
 envoyer/recevoir les lignes (mode de jeu classique)
+
+paquet game broadcast {
+    - header :
+      - tete (1 byte) : OBLIGATOIRE 0xD4
+      - type (1 byte) : 0x01
+      - version (1 byte) : 0x01
+      - taille (1 byte)
+    - game name (32 char max)
+    - port : uint16
+    - nb of players (uint_8)
+    - max nb of players (uint_8)
+    - is joinable (1 byte)
+    - MOTD (64 char max)
+}
+
+paquet game join {
+    - header (tete, type, version, taille)
+    - game join request
+    - player ID 
+    - 
+}

@@ -49,7 +49,7 @@ class OnlinePlayer : public Player {
     public:
         void handle_received_packets();
         void send_packet();
-        void generate_packet();
+        void generate_game_packet();
         void connect_to_server(ENetAddress address);
 
         OnlinePlayer() {
