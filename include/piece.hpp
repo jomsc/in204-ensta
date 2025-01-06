@@ -45,7 +45,7 @@ class Piece {
 
         ~Piece() {}
 
-        void rotate() {
+        void rotate(int input_rota) {
             switch (this->type) {
                 case 0:
                     return;
@@ -59,14 +59,35 @@ class Piece {
                     this->orientation = !this->orientation;
                     break;
                 case 4:
-                    this->orientation = (this->orientation+1) % 4;
-                    break;
+                    if(input_rota==0)
+                    {
+                        this->orientation = (this->orientation+1) % 4;
+                        break;
+                    } else 
+                    {
+                        this->orientation = (this->orientation+3) % 4;
+                        break;
+                    }
                 case 5:
-                    this->orientation = (this->orientation+1) % 4;
-                    break;
+                      if(input_rota==0)
+                    {
+                        this->orientation = (this->orientation+1) % 4;
+                        break;
+                    } else 
+                    {
+                        this->orientation = (this->orientation+3) % 4;
+                        break;
+                    }
                 case 6:
-                    this->orientation = (this->orientation+1) % 4;
-                    break;
+                      if(input_rota==0)
+                    {
+                        this->orientation = (this->orientation+1) % 4;
+                        break;
+                    } else 
+                    {
+                        this->orientation = (this->orientation+3) % 4;
+                        break;
+                    }
                 default:
                     return;
             }

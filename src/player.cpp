@@ -7,7 +7,10 @@ void Player::display(sf::RenderWindow *window) {
 }
 
 void Player::update() {
+
     int input = -1;
+    int input_rota = -1;
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
         input = 0;
     } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
@@ -18,10 +21,22 @@ void Player::update() {
         input = -1;
     }
     
+
+    /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        input_rota = 0;
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+        input_rota = 1;
+    } else  {
+        input_rota = -1;
+    }*/
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && rotate_clock.getElapsedTime().asMilliseconds() > 300) {
-        grid.pieces[0].rotate();
+        grid.pieces[0].rotate(0);
         rotate_clock.restart();
-    } 
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && rotate_clock.getElapsedTime().asMilliseconds() > 300) {
+        grid.pieces[0].rotate(1);
+        rotate_clock.restart();
+    }
 
     if ((input == 0 || input == 1) 
         && update_clock.getElapsedTime().asMilliseconds() > 500) {
