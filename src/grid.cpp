@@ -3,7 +3,7 @@
 
 void Grid::draw(sf::RenderWindow *window) {
     // on dessine la grille
-    
+   
     // on dessine les lignes horizontales
     for (int i=0;i<=numrows;i++) {
         int size = numcols*size_cell+(numcols)*line_thickness;
@@ -182,13 +182,15 @@ void Grid::update(int input) {
     }
 }
 
+/*On vérifie si un ligne est pleine*/
+
 std::vector<int> Grid::check_lines() {
     std::vector<int> lines;
     for (int i=0;i<numrows;i++) {
         bool full = true;
-        for (int j=0;j<numcols;j++) {
+        for (int j=0;j<numcols;j++) {       //on vient vérifier une à une les cellules de chaque ligne en partant du bas
             if (cells[i*numcols+j] <= 0) {
-                full = false;
+                full = false;               //si une cellule est vide on renvoie false
             }
         }
         if (full) {

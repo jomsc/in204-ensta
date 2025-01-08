@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include <iostream>
 
 void Player::display(sf::RenderWindow *window) {
     grid.draw(window);
@@ -14,15 +15,41 @@ void Player::update_next_pieces(){
             this->buffer[2]= rand()%7;
         }
 
+void Player::update_score(int num_lines_cleared,int level){
+    switch (num_lines_cleared)
+    {
+    case 1:
+        this->score += (level+1)*40;
+        this->num_lines_cleared=0;
+        break;
+    
+    case 2:
+        this->score += (level+1)*100;
+        this->num_lines_cleared=0;
+        break;
 
-void Player::update_score(){
-/*à compléter*/
+    case 3:
+        this->score += (level+1)*300;
+        this->num_lines_cleared=0;
+        break;
+
+    case 4:
+        this->score += (level+1)*1200;
+        this->num_lines_cleared=0;
+        break;
+    
+    default:
+        break;
+    }
 }
 
 void Player::update_level(){
-/*à compléter*/
+    if(this->level_up_buffer>=10){
+        this->level++;
+        this->level_up_buffer=this->level_up_buffer%10;
+    }
+//la vitesse augmente jusqu'au level 20
 }
-
 void Player::update() {
 
     int input = -1;
@@ -73,10 +100,20 @@ void Player::update() {
         update_next_pieces();
     }
 
+
     std::vector<int> lines = grid.check_lines();
     if (!lines.empty()) {
+        this->num_lines_cleared =0;
         for (auto line : lines) {
+            this->num_lines_cleared++;
+            this->level_up_buffer++;
             grid.clear_line(line);
         }
     }
+
+    update_score(this->num_lines_cleared,this->level);
+    std::cout << "Score :"<<this->score << std::endl; 
+
+    update_level();
+    std::cout << "Level :"<<this->level << std::endl; 
 }
