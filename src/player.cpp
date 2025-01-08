@@ -19,22 +19,22 @@ void Player::update_score(int num_lines_cleared,int level){
     switch (num_lines_cleared)
     {
     case 1:
-        this->score += (level+1)*40;
+        this->score += level*40;
         this->num_lines_cleared=0;
         break;
     
     case 2:
-        this->score += (level+1)*100;
+        this->score += level*100;
         this->num_lines_cleared=0;
         break;
 
     case 3:
-        this->score += (level+1)*300;
+        this->score += level*300;
         this->num_lines_cleared=0;
         break;
 
     case 4:
-        this->score += (level+1)*1200;
+        this->score += level*1200;
         this->num_lines_cleared=0;
         break;
     
