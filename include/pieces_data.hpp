@@ -5,7 +5,7 @@
 
 class PieceData {
     public:
-        int offsets[7] = {0, 16, 48, 80, 112, 176, 240};
+        int offsets[7] = { 0, 16, 48, 80, 112, 176, 240 };
         int shape[304] = { // O, I, S, Z, L, J, T
             // O
             1, 1, 0, 0,

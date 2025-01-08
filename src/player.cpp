@@ -48,7 +48,6 @@ void Player::update_level(){
         this->level++;
         this->level_up_buffer=this->level_up_buffer%10;
     }
-//la vitesse augmente jusqu'au level 20
 }
 void Player::update() {
 
@@ -64,36 +63,28 @@ void Player::update() {
     } else  {
         input = -1;
     }
-    
 
-    /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-        input_rota = 0;
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-        input_rota = 1;
-    } else  {
-        input_rota = -1;
-    }*/
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && rotate_clock.getElapsedTime().asMilliseconds() > 200) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && 
+            rotate_clock.getElapsedTime().asMilliseconds() > 200) {
         grid.pieces[0].rotate(0);
         rotate_clock.restart();
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && rotate_clock.getElapsedTime().asMilliseconds() > 200) {
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && 
+            rotate_clock.getElapsedTime().asMilliseconds() > 200) {
         grid.pieces[0].rotate(1);
         rotate_clock.restart();
     }
-
-    if ((input == 0 || input == 1) 
-        && update_clock.getElapsedTime().asMilliseconds() > 155) {
-        grid.update(input);
+    
+    float speed = get_speed(this->level-1);
+    std::cout << "Speed :"<< speed << std::endl;
+    if (gravity_clock.getElapsedTime().asSeconds() > speed) {
         grid.update(2);
-        update_clock.restart();
-    } else if (input == 2 && update_clock.getElapsedTime().asMilliseconds() > 155) {
-        grid.update(2);
-        update_clock.restart();
-    } else if (update_clock.getElapsedTime().asMilliseconds() > 500){
-        grid.update(2);
-        update_clock.restart();
+        gravity_clock.restart();
     }
+
+    if (movement_clock.getElapsedTime().asMilliseconds() > 155) {
+        grid.update(input);
+        movement_clock.restart();
+    } 
 
     if (grid.pieces.empty()) {
         grid.spawn(this->buffer[0]);
