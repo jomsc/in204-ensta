@@ -1,4 +1,4 @@
-#include "../include/grid.hpp"
+#include "grid.hpp"
 #include <iterator>
 
 void Grid::draw(sf::RenderWindow *window) {

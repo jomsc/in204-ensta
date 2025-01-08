@@ -15,20 +15,28 @@ class Player {
         int score;
         int level;
         int speed;
+        int buffer[3]; /*pour les 3 prochaines pièces*/
 
         sf::Clock update_clock;
         sf::Clock rotate_clock;
 
     public:
+
         void display(sf::RenderWindow *window);
         void update();
+        void update_next_pieces();
+        void update_score();
+        void update_level();
+
 
         Player() {
             grid = Grid();
             score = 0;
             level = 1;
             speed = 1;
-
+            for(int i=0;i<=2;i++){
+                buffer[i]=rand()%7;
+            }
             update_clock.restart();
             rotate_clock.restart();
 

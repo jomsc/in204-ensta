@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "../include/player.hpp"
+#include "player.hpp"
 #include <iostream>
 
 
@@ -17,6 +17,8 @@ int main()
     sf::RectangleShape bg(sf::Vector2f(800, 1000));
     sf::Color bg_color = sf::Color(75, 75, 75);
     bg.setFillColor(bg_color);
+
+    
 
     while (window.isOpen()) {
         clock.restart();
