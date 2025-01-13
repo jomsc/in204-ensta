@@ -150,56 +150,29 @@ bool OnlinePlayer::connect_to_server(GameInfo gameInfo, std::string pseudo) {
 
 void OnlinePlayer::handle_received_packets() {}
 
-void OnlinePlayer::send_packet(int input) {
-    uint8_t* buffer_data = generate_game_packet(input);
+void OnlinePlayer::send_packet(int input, int malus) {
+    uint8_t* buffer_data = generate_game_packet(input, malus);
 
-    ENetPacket* packet = enet_packet_create(buffer_data, buffer_data[3]+1, 0);
+    ENetPacket* packet = enet_packet_create(buffer_data, buffer_data[3]+1, 
+                                            ENET_PACKET_FLAG_RELIABLE);
 
     enet_peer_send(server, 0, packet);
 }
 
-uint8_t* OnlinePlayer::generate_game_packet(int input) {
-    uint8_t size = 128+5*this->get_pieces_size();
+uint8_t* OnlinePlayer::generate_game_packet(int input, int malus) {
 
-    uint8_t buffer_data[size];
-
+    uint8_t buffer_data[10];
     // header
     buffer_data[0] = 0xD4;
     buffer_data[1] = 0x03;
     buffer_data[2] = 0x01;
-    buffer_data[3] = size;
+    buffer_data[3] = 10;
 
     // sequence number
     *reinterpret_cast<uint32_t*>(&buffer_data[4]) = this->get_sequence_number();
 
     // input
     buffer_data[8] = input;
-
-    // score en 32 bits sur 4*8 bits
-    *reinterpret_cast<uint32_t*>(&buffer_data[9]) = this->get_score();
-    
-    // niveau
-    buffer_data[13] = this->get_level(); 
-
-    // la grille (ouille ouille ouille)
-    for (int i=0;i<grid.get_dimensions()/2;i++) {
-        uint8_t data = static_cast<uint8_t>(grid.cells[2*i]) << 4 
-                       + static_cast<uint8_t>(grid.cells[2*i+1]);
-        // on bitshift la piece en 2*i et on additionne avec celle en 2*i+1
-        // pour en mettre deux dans un uint8_t vu que valeur max 16 nous convient
-
-        buffer_data[i+14] = data;
-    }
-
-    // pieces
-    int offset = 14+grid.get_dimensions()/2;
-    for (int i=0;i<grid.pieces.size();i++) {
-        buffer_data[offset+5*i] = grid.pieces[i].x;
-        buffer_data[offset+5*i+1] = grid.pieces[i].y;
-        buffer_data[offset+5*i+2] = grid.pieces[i].orientation;
-        buffer_data[offset+5*i+3] = grid.pieces[i].type;
-        buffer_data[offset+5*i+4] = grid.pieces[i].value;
-    }
-
+    buffer_data[9] = malus;
     return buffer_data; 
 }
