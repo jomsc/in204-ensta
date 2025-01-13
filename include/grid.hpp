@@ -10,22 +10,21 @@ class Grid {
         int y_offset;
         int numrows;
         int numcols;
-        std::vector<int> cells; 
-        // grounded piece : type+1, falling piece : 0, empty : -1
-
         int size_cell;
         int line_thickness;
 
-        
-
     public:
+        std::vector<int> cells; 
+        // grounded piece : type+1, falling piece : 0, empty : -1
         std::vector<Piece> pieces; // pieces qui tombent
+
         void draw(sf::RenderWindow *window);
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
         void update(int input);
         std::vector<int> check_lines();
         void clear_line(int line);
+        int get_dimensions() { return numrows*numcols; }
 
         Grid() {
             x_offset = 10;

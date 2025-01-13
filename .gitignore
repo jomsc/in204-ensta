@@ -1,3 +1,5 @@
 src/*.o
-.vscode/*
+
 tetris
+.vscode/settings.json
+.vscode/tasks.json

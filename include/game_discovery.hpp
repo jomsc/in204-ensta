@@ -7,6 +7,17 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <iostream>
+
+struct GameInfo {
+    std::string gameName;
+    std::string motd;
+    uint16_t gamePort;
+    u_int8_t maxPlayers;
+    u_int8_t currentPlayers;
+    ENetAddress serverAddress;
+    uint8_t isJoinable;
+};
 
 class GameDiscovery {
 private:
@@ -17,17 +28,10 @@ private:
     std::atomic<bool> isRunning;
     std::thread broadcastThread;
     
-    struct GameInfo {
-        std::string gameName;
-        std::string motd;
-        uint16_t gamePort;
-        u_int8_t maxPlayers;
-        u_int8_t currentPlayers;
-    };
-    
     GameInfo gameInfo;
 
 public:
+    
     GameDiscovery() : discoveryHost(nullptr), isRunning(false) {}
     
     bool initializeHost(const std::string& gameName, const std::string& motd,
@@ -56,24 +60,51 @@ public:
             
             ENetAddress sender;
             ENetBuffer buffer;
-            char data[1024];
-            buffer.data = data;
-            buffer.dataLength = sizeof(data);
             
             if (enet_socket_receive(client->socket, &sender, &buffer, 1) > 0) {
-                std::string message(static_cast<char*>(buffer.data));
+                uint8_t* data = static_cast<uint8_t*>(buffer.data);
                 
-                // Parse received game info
-                size_t pos1 = message.find(':');
-                size_t pos2 = message.find(':', pos1 + 1);
-                
-                if (pos1 != std::string::npos && pos2 != std::string::npos) {
-                    GameInfo game;
-                    game.gameName = message.substr(0, pos1);
-                    game.gamePort = std::stoi(message.substr(pos1 + 1, pos2 - pos1 - 1));
-                    // Parse player counts...
-                    discoveredGames.push_back(game);
+                if (data[0] != 0xD4) {
+                    std::cout << "incorrect head: " << data[0] << std::endl;
+                    break;
                 }
+                
+                if (data[1] != 0x01) {
+                    std::cout << "incorrect type: " << data[1] << std::endl;
+                    break;
+                }
+
+                if (data[2] != 0x01) {
+                    std::cout << "incorrect version: " << data[2] << std::endl;
+                    break;
+                }
+
+                if (data[3] != buffer.dataLength) {
+                    std::cout << "incorrect length: " << buffer.dataLength 
+                    << " with expected length: " << data[3] << std::endl;
+                    break;
+                }
+                
+                GameInfo game;
+
+                game.gameName.resize(32, ' ');
+                for (int i=0;i<32;i++) {
+                    game.gameName[i] = static_cast<char>(data[4+i]);
+                }
+
+                game.gamePort = ntohs(static_cast<uint16_t>(data[36]) << 8 + data[37]);
+                game.currentPlayers = data[38];
+                game.maxPlayers = data[39];
+                game.isJoinable = data[40];
+
+                game.motd.resize(64, ' ');
+                for (int i=0;i<64;i++) {
+                    game.motd[i] = static_cast<char>(data[41+i]);
+                }
+
+                game.serverAddress = sender;
+                discoveredGames.push_back(game);
+                
             }
             
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

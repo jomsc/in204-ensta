@@ -2,6 +2,7 @@
 #define PLAYER_HPP
 
 #include "grid.hpp"
+#include "game_discovery.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -12,23 +13,31 @@
 
 class Player {
     private:
-        Grid grid;
-        int score;
+        uint32_t score;
         int level;
-        int speed;
+        _Float32 speed;
 
         sf::Clock update_clock;
         sf::Clock rotate_clock;
 
+        uint32_t sequence_number;
+
     public:
+        Grid grid;
+
         void display(sf::RenderWindow *window);
         void update();
+        uint8_t get_pieces_size() { return this->grid.pieces.size(); }
+        uint32_t get_sequence_number() { return sequence_number; }
+        uint32_t get_score() { return score; }
+        uint8_t get_level() { return level; }
 
         Player() {
             grid = Grid();
             score = 0;
             level = 1;
             speed = 1;
+            sequence_number = 0;
 
             update_clock.restart();
             rotate_clock.restart();
@@ -41,16 +50,18 @@ class OnlinePlayer : public Player {
     private:
         int network_mode;
         ENetHost *client;
-        ENetPeer *peer;
+        ENetPeer *server;
         ENetAddress address;
         ENetEvent event;
         bool connected;
+        GameDiscovery game_discovery = GameDiscovery();
+        char pseudo[16];
 
     public:
         void handle_received_packets();
-        void send_packet();
-        void generate_game_packet();
-        void connect_to_server(ENetAddress address);
+        void send_packet(int input);
+        uint8_t* generate_game_packet(int input);
+        bool connect_to_server(GameInfo gameInfo, std::string pseudo);
 
         OnlinePlayer() {
             if (enet_initialize () != 0) {
