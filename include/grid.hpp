@@ -26,6 +26,7 @@ class Grid {
         void update(int input);
         std::vector<int> check_lines();
         void clear_line(int line);
+        void soft_lock(bool piece_locked);
 
         Grid() {
             x_offset = 10;
