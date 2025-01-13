@@ -24,6 +24,7 @@ class Player {
 
     public:
         Grid grid;
+        uint32_t seed;
 
         void display(sf::RenderWindow *window);
         void update();
@@ -31,6 +32,8 @@ class Player {
         uint32_t get_sequence_number() { return sequence_number; }
         uint32_t get_score() { return score; }
         uint8_t get_level() { return level; }
+        void set_score(uint32_t theScore) { this->score = theScore; }
+        void set_level(int theLevel) { this->level = theLevel; }
 
         Player() {
             grid = Grid();
@@ -58,7 +61,7 @@ class OnlinePlayer : public Player {
         char pseudo[16];
 
     public:
-        void handle_received_packets();
+        void handle_received_packets(ENetPacket* packet);
         void send_packet(int input, int malus);
         uint8_t* generate_game_packet(int input, int malus);
         bool connect_to_server(GameInfo gameInfo, std::string pseudo);

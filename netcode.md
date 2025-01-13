@@ -37,7 +37,7 @@ paquet game join/joined {
       - tete (1 byte) : OBLIGATOIRE 0xD4
       - type (1 byte) : 0x02
       - version (1 byte) : 0x01
-      - taille (1 byte) : 21 octets ou 0x15
+      - taille (1 byte) : 21 octets ou 0x15 ou 25 octets
     - join request (1 byte): 
       - 0x01 : join requested
       - 0x02 : join accepted 
@@ -48,6 +48,7 @@ paquet game join/joined {
       - pseudo wanted on join request
       - pseudo given on join accepted
       - pseudo refused on join refused
+    - if join accepted : seed (4 bytes, uint32_t)
 }
 
 paquet classic game client->server {
@@ -68,12 +69,25 @@ paquet classic game server->client {
       - version (1 byte) : 0x01
       - taille (1 byte) : 4 + i * 115 + (5 * nb_pieces[i]) * i
     - sequence number (uint32_t : 4 bytes) / frame number
-    - for each player i : 105+5*nb_pieces 
+    - for each player i : 
+    - 115+5*nb_pieces 
       - score (uint32_t : 4 bytes)
       - level (1 byte) 
-      - grid (gridsize / 2 bytes)
+      - grid (gridsize bytes)
       - pieces : 5*uint8_t * nb_pieces
 } ~2000 bits/paquet pour 2 joueurs -> 128 paquets/seconde max
+
+paquet classic game server->client je me prends une ligne {
+    - header : 
+      - tete (1 byte) : OBLIGATOIRE 0xD4
+      - type (1 byte) : 0x05
+      - version (1 byte) : 0x01
+      - taille (1 byte) : 25 octets
+    - sequence number (uint32_t : 4 bytes) / frame number
+    - malus (1 byte)
+    - pseudo du joueur qui envoie (16 octets)
+}
+
 
 / ! \ IL FAUT MODIFIER LE CODE POUR INCLURE LE LIFETIME DE LA PIECE 
 DANS SON STRUCT POUR POUVOIR LE TRANSMETTRE

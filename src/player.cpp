@@ -125,6 +125,7 @@ bool OnlinePlayer::connect_to_server(GameInfo gameInfo, std::string pseudo) {
                         for (int i=0;i<16;i++) {
                             pseudo[i] = static_cast<char>(data[5+i]);
                         }
+                        this->seed = *reinterpret_cast<uint32_t*>(data[21]);
                         return true;
                     case 3:
                         std::cout << "Join request refused : server full" << std::endl;
@@ -148,7 +149,64 @@ bool OnlinePlayer::connect_to_server(GameInfo gameInfo, std::string pseudo) {
     }
 }
 
-void OnlinePlayer::handle_received_packets() {}
+void OnlinePlayer::handle_received_packets(ENetPacket* packet) {
+    uint8_t* data = static_cast<uint8_t*>(packet->data);
+
+    if (data[0] != 0xD4) {
+        std::cout << "incorrect head: " << data[0] << std::endl;
+        return;
+    }
+
+    if (data[1] == 0x04) {
+        if (data[2] != 0x01) {
+            std::cout << "incorrect version: " << data[2] << std::endl;
+            return;
+        }
+
+        if (data[3] != packet->dataLength-1) {
+            std::cout << "incorrect size: " 
+            << packet->dataLength-1 
+            << " with expected length: " << data[3] << std::endl;
+            return;
+        }
+        
+        // simple no rollback for now
+        this->set_score(*reinterpret_cast<uint32_t*>(data[8]));
+        this->set_level(data[12]);
+        for (int i=0;i<this->grid.get_dimensions();i++) {
+            this->grid.cells[i] = data[13+i];
+        }
+    } else if (data[1] == 0x05) {
+        if (data[2] != 0x01) {
+            std::cout << "incorrect version: " << data[2] << std::endl;
+            return;
+        }
+
+        if (data[3] != packet->dataLength-1) {
+            std::cout << "incorrect size: " 
+            << packet->dataLength-1 
+            << " with expected length: " << data[3] << std::endl;
+            return;
+        }
+        
+        int malus = data[8];
+        std::string pseudo_adversaire;
+        pseudo_adversaire.resize(16, ' ');
+        for (int i=0;i<16;i++) {
+            pseudo_adversaire[i] = static_cast<char>(data[5+i]);
+        }
+
+        // TODO : ON AJOUTE LA LIGNE PAR LE BAS DE LA PART DE PSEUDO_ADVERSAIRE
+    }
+
+
+    if (data[1] != 0x04) {
+        std::cout << "incorrect type: " << data[1] << std::endl;
+        return;
+    }
+
+    
+}
 
 void OnlinePlayer::send_packet(int input, int malus) {
     uint8_t* buffer_data = generate_game_packet(input, malus);
