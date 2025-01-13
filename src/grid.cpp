@@ -72,6 +72,7 @@ void Grid::spawn(int type) {
 }
 
 void Grid::update(int input) {
+
     if (!pieces.empty()) {
         for (int v=0;v<pieces.size();v++) {
             // on enleve la piece de la grid
@@ -142,6 +143,7 @@ void Grid::update(int input) {
                     }
                     if (possible)
                         pieces[v].y += 1;
+                        soft_lock_clock.restart();
                         possible = false;
                     break;
 
@@ -157,22 +159,21 @@ void Grid::update(int input) {
                 }
 
             }
-
+            
             // on vérifie si ce mouvement amene a ce que la piece soit immobilisée
+            // si oui, on ajoute la piece à la grid
+            // et on la retire des pieces qui tombent
             for (int i=0;i<4;i++) {
                 for (int j=0;j<4;j++) {
                     if (pieces[v].shape[4*i+j] == 1 
                         && (this->cells[(pieces[v].y+i+1)*numcols + pieces[v].x+j] > 0
-                        || pieces[v].y+i+1 >= numrows)) {
-                        // si oui, on ajoute la piece à la grid
-                        // et on la retire des pieces qui tombent
+                        || pieces[v].y+i+1 >= numrows) && soft_lock_clock.getElapsedTime().asMilliseconds()>150) {
                         for (int k=0;k<4;k++) {
                             for (int l=0;l<4;l++) {
                                 if (pieces[v].shape[4*k+l] == 1)
                                     cells[(pieces[v].y+k)*numcols+pieces[v].x+l] = pieces[v].type+1;
-                            }
                         }
-
+                            }
                         pieces.erase(pieces.begin()+i);
                         return;
                     }

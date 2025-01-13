@@ -53,6 +53,7 @@ void Player::update() {
 
     int input = -1;
     int input_rota = -1;
+    std::cout << "Speed :"<< speed << std::endl;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
         input = 0;
@@ -64,6 +65,12 @@ void Player::update() {
         input = -1;
     }
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+        this->speed = get_speed(14);
+    } else {
+        this->speed= get_speed(this->level-1);
+        }
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && 
             rotate_clock.getElapsedTime().asMilliseconds() > 200) {
         grid.pieces[0].rotate(0);
@@ -73,9 +80,7 @@ void Player::update() {
         grid.pieces[0].rotate(1);
         rotate_clock.restart();
     }
-    
-    float speed = get_speed(this->level-1);
-    std::cout << "Speed :"<< speed << std::endl;
+
     if (gravity_clock.getElapsedTime().asSeconds() > speed) {
         grid.update(2);
         gravity_clock.restart();

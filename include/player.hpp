@@ -15,6 +15,7 @@ class Player {
         int score;
         int level;
         int buffer[3]; /*pour les 3 prochaines pièces*/
+        float speed;
 
         int level_up_buffer;
         int num_lines_cleared;
@@ -57,6 +58,7 @@ class Player {
             for(int i=0;i<=2;i++){
                 buffer[i]=rand()%7;
             }
+            speed= 1/(60*speeds[1]);
 
             level_up_buffer=0;
             num_lines_cleared=0;
