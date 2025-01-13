@@ -13,6 +13,11 @@ class GameServer {
         std::vector<Grid> grids;
         GameDiscovery gameDiscovery = GameDiscovery();
 
+        std::vector<ENetPeer*> player_peers;
+        ENetHost* server_host;
+
+        uint32_t seed;
+
         int simulationRate = 10;
 
     public:
@@ -23,6 +28,8 @@ class GameServer {
             gameInfo.maxPlayers = 2;
             gameInfo.currentPlayers = 0;
             gameInfo.isJoinable = 1;
+            gameInfo.serverAddress.host = ENET_HOST_ANY;
+            gameInfo.serverAddress.port = gameInfo.gamePort;
         }
         GameServer(std::string gameName, std::string motd, 
                     int gamePort, int maxPlayers) {
@@ -35,13 +42,17 @@ class GameServer {
             gameInfo.maxPlayers = maxPlayers;
             gameInfo.currentPlayers = 0;
             gameInfo.isJoinable = 1;
+            gameInfo.serverAddress.host = ENET_HOST_ANY;
+            gameInfo.serverAddress.port = gameInfo.gamePort;
         }
 
         void create_game(); 
-        void start_game();
+        void handle_join_requests();
+        bool start_game();
         void update();
         void handle_received_packets();
         void send_packets();
+        uint8_t* generate_game_packet(int playerIndex);
         void declare_victory();
         void delete_game();
 };

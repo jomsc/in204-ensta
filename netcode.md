@@ -88,6 +88,16 @@ paquet classic game server->client je me prends une ligne {
     - pseudo du joueur qui envoie (16 octets)
 }
 
+paquet game start {
+  - header : 
+    - tete (1 byte) : OBLIGATOIRE 0xD4
+    - type (1 byte) : 0x06
+    - version (1 byte) : 0x01
+    - taille (1 byte) : 5
+  - game start : (1 byte)
+    - 1 : game start normal
+}
+
 
 / ! \ IL FAUT MODIFIER LE CODE POUR INCLURE LE LIFETIME DE LA PIECE 
 DANS SON STRUCT POUR POUVOIR LE TRANSMETTRE

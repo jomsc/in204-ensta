@@ -65,6 +65,7 @@ class OnlinePlayer : public Player {
         void send_packet(int input, int malus);
         uint8_t* generate_game_packet(int input, int malus);
         bool connect_to_server(GameInfo gameInfo, std::string pseudo);
+        void handle_start_packet();
 
         OnlinePlayer() {
             if (enet_initialize () != 0) {

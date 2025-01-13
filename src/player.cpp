@@ -234,3 +234,6 @@ uint8_t* OnlinePlayer::generate_game_packet(int input, int malus) {
     buffer_data[9] = malus;
     return buffer_data; 
 }
+
+void OnlinePlayer::handle_start_packet() {}
+// TODO : handle game start packet
