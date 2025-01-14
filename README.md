@@ -16,7 +16,7 @@
 
 ## Partie Joseph
 - [ ] netcode p2p :
-  - [ ] modifier la classe grid etc. 
+  - [x] modifier la classe grid etc. 
   - [ ] menu pour choisir mode classique/reseau et host/join
 
 On utilise ENet 1.3.18

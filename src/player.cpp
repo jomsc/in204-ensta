@@ -235,5 +235,41 @@ uint8_t* OnlinePlayer::generate_game_packet(int input, int malus) {
     return buffer_data; 
 }
 
-void OnlinePlayer::handle_start_packet() {}
-// TODO : handle game start packet
+bool OnlinePlayer::handle_start_packet() { // returns true if game is started
+    ENetEvent event;
+    while (enet_host_service(this->client, &event, 1000) > 0) {
+        if (event.type == ENET_EVENT_TYPE_RECEIVE) {
+            uint8_t* data = static_cast<uint8_t*>(event.packet->data);
+            if (data[0] != 0xD4) {
+                std::cout << "incorrect head: " << data[0] << std::endl;
+                return false;
+            }
+
+            if (data[1] != 0x06) {
+                std::cout << "incorrect type: " << data[1] << std::endl;
+                return false;
+            }
+
+            if (data[2] != 0x01) {
+                std::cout << "incorrect version: " << data[2] << std::endl;
+                return false;
+            }
+
+            if (data[3] != event.packet->dataLength-1) {
+                std::cout << "incorrect size: " 
+                << event.packet->dataLength-1 
+                << " with expected length: " << data[3] << std::endl;
+                return false;
+            }
+
+            if (data[4] == 1) { // game starts
+                return true;
+            } else {
+                std::cout << "Unexpected game start packet received." << std::endl;
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+}

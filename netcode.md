@@ -75,6 +75,7 @@ paquet classic game server->client {
       - level (1 byte) 
       - grid (gridsize bytes)
       - pieces : 5*uint8_t * nb_pieces
+      - pseudo
 } ~2000 bits/paquet pour 2 joueurs -> 128 paquets/seconde max
 
 paquet classic game server->client je me prends une ligne {
@@ -98,6 +99,18 @@ paquet game start {
     - 1 : game start normal
 }
 
+paquet game end {
+  - header : 
+    - tete (1 byte) : OBLIGATOIRE 0xD4
+    - type (1 byte) : 0x07
+    - version (1 byte) : 0x01
+    - taille (1 byte) : 5
+  - game end : (1 byte)
+    - 0 : game not ended
+    - 1 : you lost due to reaching the top 
+    - 2 : you lost for unknown reasons
+    - 3 : you WON 
+}
 
 / ! \ IL FAUT MODIFIER LE CODE POUR INCLURE LE LIFETIME DE LA PIECE 
 DANS SON STRUCT POUR POUVOIR LE TRANSMETTRE

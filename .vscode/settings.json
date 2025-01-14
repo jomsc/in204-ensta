@@ -50,7 +50,8 @@
         "chrono": "cpp",
         "ratio": "cpp",
         "semaphore": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "cinttypes": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

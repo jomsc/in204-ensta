@@ -66,6 +66,8 @@ void GameServer::handle_join_requests() {
                         player_peers.push_back(event.peer);
                         Grid grid = Grid();
                         grids.push_back(grid);
+                        loss_list.push_back(0);
+                        gameInfo.currentPlayers++;
 
                         // send back the join request accepted packet to them
                         uint8_t buffer_data[25]; 
@@ -163,9 +165,58 @@ void GameServer::handle_received_packets() {}
 
 void GameServer::send_packets() {}
 
-uint8_t* GameServer::generate_game_packet(int playerIndex) {}
+uint8_t* GameServer::generate_game_packet(int playerIndex) {
+    
+}
 
-void GameServer::declare_victory() {}
+bool GameServer::declare_victory() {
+    for (int i=0;i<grids.size();i++) {
+        if (grids[i].hasLost()) {
+            std::cout << "Player " << player_list[i] << " lost." << std::endl;
+            loss_list[i] = 1;
+            gameInfo.currentPlayers--;
+
+            // send loss packet
+            uint8_t buffer_data[25]; 
+            buffer_data[0] = 0xD4; 
+            buffer_data[1] = 0x02;
+            buffer_data[2] = 0x01; 
+            buffer_data[3] = 5;
+            
+            buffer_data[4] = 1; 
+
+            ENetPacket* packet = enet_packet_create(buffer_data, 
+                                    buffer_data[3]+1,
+                                    ENET_PACKET_FLAG_RELIABLE);
+            enet_peer_send(player_peers[i], 0, packet);
+
+            if (gameInfo.currentPlayers == 1) {
+                // someone won, send them game won packet
+                for (int j=0;j<grids.size();j++) {
+                    if (!loss_list[j]) {
+                        uint8_t buffer_data[25]; 
+                        buffer_data[0] = 0xD4; 
+                        buffer_data[1] = 0x02;
+                        buffer_data[2] = 0x01; 
+                        buffer_data[3] = 5;
+                        
+                        buffer_data[4] = 3; 
+
+                        ENetPacket* packet = enet_packet_create(buffer_data, 
+                                                buffer_data[3]+1,
+                                                ENET_PACKET_FLAG_RELIABLE);
+                        enet_peer_send(player_peers[j], 0, packet);
+                        return true;
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    return false;
+}
 
 void GameServer::delete_game() {
     enet_host_destroy(server_host);

@@ -25,6 +25,7 @@ class Grid {
         std::vector<int> check_lines();
         void clear_line(int line);
         int get_dimensions() { return numrows*numcols; }
+        bool hasLost() {}
 
         Grid() {
             x_offset = 10;

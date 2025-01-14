@@ -11,14 +11,19 @@ class GameServer {
         GameInfo gameInfo;
         std::vector<std::string> player_list;
         std::vector<Grid> grids;
+        std::vector<int> loss_list;
         GameDiscovery gameDiscovery = GameDiscovery();
+        std::vector<int> piece_list; // liste des pieces generees
+        std::vector<int> rand_index; // index pour chaque joueur, ou il en est
 
         std::vector<ENetPeer*> player_peers;
         ENetHost* server_host;
 
         uint32_t seed;
+        uint32_t sequence_number;
 
         int simulationRate = 10;
+        
 
     public:
         GameServer() {
@@ -53,7 +58,7 @@ class GameServer {
         void handle_received_packets();
         void send_packets();
         uint8_t* generate_game_packet(int playerIndex);
-        void declare_victory();
+        bool declare_victory();
         void delete_game();
 };
 

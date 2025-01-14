@@ -59,13 +59,14 @@ class OnlinePlayer : public Player {
         bool connected;
         GameDiscovery game_discovery = GameDiscovery();
         char pseudo[16];
+        bool isGameStarted = false;
 
     public:
         void handle_received_packets(ENetPacket* packet);
         void send_packet(int input, int malus);
         uint8_t* generate_game_packet(int input, int malus);
         bool connect_to_server(GameInfo gameInfo, std::string pseudo);
-        void handle_start_packet();
+        bool handle_start_packet();
 
         OnlinePlayer() {
             if (enet_initialize () != 0) {
