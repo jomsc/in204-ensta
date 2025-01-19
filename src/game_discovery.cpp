@@ -68,6 +68,8 @@ void GameDiscovery::startBroadcasting() {
                             1);
             
             enet_packet_destroy(packet);
+
+            std::cout << "sent packet for broadcast" << std::endl;
             
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(BROADCAST_INTERVAL_MS)

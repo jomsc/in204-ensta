@@ -50,7 +50,6 @@ void Player::update() {
 
     int input = -1;
     int input_rota = -1;
-    std::cout << "Speed :"<< speed << std::endl;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
         input = 0;
@@ -105,10 +104,8 @@ void Player::update() {
     }
 
     update_score(this->num_lines_cleared,this->level);
-    std::cout << "Score :"<<this->score << std::endl; 
 
     update_level();
-    std::cout << "Level :"<<this->level << std::endl; 
 }
 
 bool OnlinePlayer::connect_to_server(GameInfo gameInfo, std::string pseudo) {

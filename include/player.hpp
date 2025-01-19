@@ -94,7 +94,6 @@ class OnlinePlayer : public Player {
         ENetAddress address;
         ENetEvent event;
         bool connected;
-        GameDiscovery game_discovery = GameDiscovery();
         char pseudo[16];
         bool isGameStarted = false;
 
@@ -104,6 +103,7 @@ class OnlinePlayer : public Player {
         uint8_t* generate_game_packet(int input, int malus);
         bool connect_to_server(GameInfo gameInfo, std::string pseudo);
         bool handle_start_packet();
+        GameDiscovery game_discovery = GameDiscovery();
 
         OnlinePlayer() {
             if (enet_initialize () != 0) {
