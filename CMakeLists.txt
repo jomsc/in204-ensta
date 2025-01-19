@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
     enet
     URL https://github.com/lsalzman/enet/archive/refs/tags/v1.3.18.tar.gz
-    URL_HASH SHA256=0458e19f3b4f4b279fe9b0a8d9633970de06bcdf6b2c6d72087ceebc2fb272de
+    URL_HASH SHA256=28603c895f9ed24a846478180ee72c7376b39b4bb1287b73877e5eae7d96b0dd
 )
 
 # Make ENet available
