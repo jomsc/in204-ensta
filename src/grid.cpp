@@ -1,7 +1,7 @@
 #include "grid.hpp"
 #include <iterator>
 
-void Grid::draw(sf::RenderWindow *window) {
+void Grid::draw(sf::RenderWindow *window, int score, int level) {
     // on dessine la grille
    
     // on dessine les lignes horizontales
@@ -49,6 +49,26 @@ void Grid::draw(sf::RenderWindow *window) {
             }
         }
     }
+
+    // on dessine le score
+    std::string scorestr = "Score : " + std::to_string(score);
+    sf::Text score_text(scorestr, arial);
+    score_text.setCharacterSize(30);
+    score_text.setStyle(sf::Text::Bold);
+    score_text.setFillColor(sf::Color::White);
+    score_text.setPosition(numcols*(size_cell+line_thickness)
+                           +line_thickness+x_offset*2, y_offset);
+    window->draw(score_text);
+
+    // on dessine le niveau 
+    std::string levelstr = "Niveau : " + std::to_string(level);
+    sf::Text level_text(levelstr, arial);
+    level_text.setCharacterSize(30);
+    level_text.setStyle(sf::Text::Bold);
+    level_text.setFillColor(sf::Color::White);
+    level_text.setPosition(numcols*(size_cell+line_thickness)
+                           +line_thickness+x_offset*2, 2*y_offset+30);
+    window->draw(level_text);
 }
 
 void Grid::draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color) {

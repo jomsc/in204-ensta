@@ -11,7 +11,6 @@
 
 #include <cstdlib>
 
-
 class Player {
     private:
         uint32_t score;

@@ -14,6 +14,7 @@ class Grid {
         int line_thickness;
 
         sf::Clock soft_lock_clock;
+        sf::Font arial;
 
         
 
@@ -22,7 +23,7 @@ class Grid {
         // grounded piece : type+1, falling piece : 0, empty : -1
         std::vector<Piece> pieces; // pieces qui tombent
 
-        void draw(sf::RenderWindow *window);
+        void draw(sf::RenderWindow *window, int score, int level);
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
         void update(int input);
@@ -48,6 +49,8 @@ class Grid {
             line_thickness = 2;
 
             pieces = std::vector<Piece>();
+
+            arial.loadFromFile("../assets/fonts/arial.ttf");
         }
 
         ~Grid() {}
