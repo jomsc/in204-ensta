@@ -67,16 +67,12 @@ paquet classic game server->client {
       - tete (1 byte) : OBLIGATOIRE 0xD4
       - type (1 byte) : 0x04
       - version (1 byte) : 0x01
-      - taille (1 byte) : 4 + i * 115 + (5 * nb_pieces[i]) * i
+      - taille (1 byte) : 233
     - sequence number (uint32_t : 4 bytes) / frame number
-    - for each player i : 
-    - 115+5*nb_pieces 
-      - score (uint32_t : 4 bytes)
-      - level (1 byte) 
-      - grid (gridsize bytes)
-      - pieces : 5*uint8_t * nb_pieces
-      - pseudo
-} ~2000 bits/paquet pour 2 joueurs -> 128 paquets/seconde max
+    - score (uint32_t : 4 bytes)
+    - level (1 byte) 
+    - grid (gridsize bytes) 220 
+}
 
 paquet classic game server->client je me prends une ligne {
     - header : 

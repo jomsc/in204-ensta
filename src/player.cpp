@@ -157,7 +157,7 @@ void OnlinePlayer::handle_received_packets(ENetPacket* packet) {
         return;
     }
 
-    if (data[1] == 0x04) {
+    if (data[1] == 0x04) { // si c'est un paquet classique
         if (data[2] != 0x01) {
             std::cout << "incorrect version: " << data[2] << std::endl;
             return;
@@ -176,7 +176,7 @@ void OnlinePlayer::handle_received_packets(ENetPacket* packet) {
         for (int i=0;i<this->grid.get_dimensions();i++) {
             this->grid.cells[i] = data[13+i];
         }
-    } else if (data[1] == 0x05) {
+    } else if (data[1] == 0x05) { // si on se prend une ligne
         if (data[2] != 0x01) {
             std::cout << "incorrect version: " << data[2] << std::endl;
             return;

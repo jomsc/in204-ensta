@@ -11,6 +11,8 @@ class GameServer {
         GameInfo gameInfo;
         std::vector<std::string> player_list;
         std::vector<Grid> grids;
+        std::vector<uint32_t> scores;
+        std::vector<uint8_t> levels;
         std::vector<int> loss_list;
         GameDiscovery gameDiscovery = GameDiscovery();
         std::vector<int> piece_list; // liste des pieces generees
@@ -56,7 +58,8 @@ class GameServer {
         bool start_game();
         void update();
         void handle_received_packets();
-        void send_packets();
+        void send_game_packets();
+        void send_line_packet(int playerSource, int playerDest, int n);
         uint8_t* generate_game_packet(int playerIndex);
         bool declare_victory();
         void delete_game();

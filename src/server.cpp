@@ -62,11 +62,16 @@ void GameServer::handle_join_requests() {
                     == player_list.end()) { // if pseudo isn't already taken :
                         
                         // add player to the server
+                        // on rajoute une case dans tous les tableaux
                         player_list.push_back(pseudo);
                         player_peers.push_back(event.peer);
+
                         Grid grid = Grid();
                         grids.push_back(grid);
+                        scores.push_back(0);
+                        levels.push_back(1);
                         loss_list.push_back(0);
+                        rand_index.push_back(0);
                         gameInfo.currentPlayers++;
 
                         // send back the join request accepted packet to them
@@ -155,6 +160,7 @@ bool GameServer::start_game() {
 
         return true;
     } else {
+        std::cout << "Not enough players." << std::endl;
         return false;
     }
 }
@@ -163,10 +169,65 @@ void GameServer::update() {}
 
 void GameServer::handle_received_packets() {}
 
-void GameServer::send_packets() {}
+void GameServer::send_game_packets() {
+    for (int i=0;i<this->gameInfo.currentPlayers;i++) {
+        uint8_t* data = generate_game_packet(i);
+
+        ENetPacket* packet = enet_packet_create(data, 
+                                data[3]+1,
+                                ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(player_peers[i], 0, packet);
+
+        std::cout << "Packet sent to player " << i 
+        << " successfully." << std::endl;
+    }
+
+    return;
+}
+
+void GameServer::send_line_packet(int playerSource, int playerDest, int n) {
+    uint8_t buffer_data[25];
+    buffer_data[0] = 0xD4;
+    buffer_data[1] = 0x05;
+    buffer_data[2] = 0x01;
+    buffer_data[3] = 25;
+
+    *reinterpret_cast<uint32_t*>(buffer_data[4]) = this->sequence_number;
+    buffer_data[8] = n; // quelle case sera libre de la ligne envoyée
+
+    for (int i=0;i<64;i++) {
+        buffer_data[9+i] = static_cast<uint8_t>(player_list[playerSource][i]);
+    }
+
+    ENetPacket* packet = enet_packet_create(buffer_data, 
+                            buffer_data[3]+1,
+                            ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(player_peers[playerDest], 0, packet);
+
+    std::cout << "Line packet with index " << n << " sent to "
+              << player_list[playerDest] << " from "
+              << player_list[playerSource] << " successfully." << std::endl;
+              
+    return;
+}
+
 
 uint8_t* GameServer::generate_game_packet(int playerIndex) {
+    uint8_t buffer_data[233];
+    buffer_data[0] = 0xD4;
+    buffer_data[1] = 0x04;
+    buffer_data[2] = 0x01;
+    buffer_data[3] = 233;
     
+    *reinterpret_cast<uint32_t*>(buffer_data[4]) = this->sequence_number;
+    *reinterpret_cast<uint32_t*>(buffer_data[8]) = this->scores[playerIndex];
+    buffer_data[12] = this->levels[playerIndex];
+    
+    for (int i=0;i<this->grids[playerIndex].get_dimensions();i++) {
+        buffer_data[13+i] = this->grids[playerIndex].cells[i];
+    }
+
+    return buffer_data;
 }
 
 bool GameServer::declare_victory() {
