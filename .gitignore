@@ -2,3 +2,7 @@ src/*.o
 build
 
 tetris
+
+tetris
+.vscode/settings.json
+.vscode/tasks.json

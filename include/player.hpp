@@ -3,19 +3,21 @@
 
 #include "grid.hpp"
 
+#include "game_discovery.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Keyboard.hpp>
+#include <enet/enet.h>
 
 #include <cstdlib>
 
 
 class Player {
     private:
-        Grid grid;
-        int score;
+        uint32_t score;
         int level;
         int buffer[3]; /*pour les 3 prochaines pièces*/
-        float speed;
+        _Float32 speed;
 
         int level_up_buffer;
         int num_lines_cleared;
@@ -23,6 +25,8 @@ class Player {
         sf::Clock gravity_clock;
         sf::Clock rotate_clock;
         sf::Clock movement_clock;
+
+        uint32_t sequence_number;
 
         float speeds[15] = { // cells per frame at 60fps (official guidelines)
             0.01667, 
@@ -43,12 +47,20 @@ class Player {
         };
 
     public:
+        Grid grid;
+        uint32_t seed;
 
         void display(sf::RenderWindow *window);
         void update();
         void update_next_pieces();
         void update_score(int num_lines_cleared,int level);
         void update_level();
+        uint8_t get_pieces_size() { return this->grid.pieces.size(); }
+        uint32_t get_sequence_number() { return sequence_number; }
+        uint32_t get_score() { return score; }
+        uint8_t get_level() { return level; }
+        void set_score(uint32_t theScore) { this->score = theScore; }
+        void set_level(int theLevel) { this->level = theLevel; }
 
 
         Player() {
@@ -73,6 +85,50 @@ class Player {
             int i = (level > 15) ? 15 : level; // vitesse max = niveau 15
             return 1/(60*speeds[i]);
         }
+};
+
+class OnlinePlayer : public Player {
+    private:
+        int network_mode;
+        ENetHost *client;
+        ENetPeer *server;
+        ENetAddress address;
+        ENetEvent event;
+        bool connected;
+        GameDiscovery game_discovery = GameDiscovery();
+        char pseudo[16];
+        bool isGameStarted = false;
+
+    public:
+        void handle_received_packets(ENetPacket* packet);
+        void send_packet(int input, int malus);
+        uint8_t* generate_game_packet(int input, int malus);
+        bool connect_to_server(GameInfo gameInfo, std::string pseudo);
+        bool handle_start_packet();
+
+        OnlinePlayer() {
+            if (enet_initialize () != 0) {
+                fprintf (stderr, "ENet initialization error.\n");
+            }
+
+            client = enet_host_create(NULL, 1, 2, 0, 0);
+
+            if (client == NULL) {
+                fprintf (stderr, "ENet client host creation error.\n");
+                exit(EXIT_FAILURE);
+            } 
+        }
+
+        ~OnlinePlayer() {
+            enet_host_destroy(client);
+            enet_deinitialize();
+        }
+};
+
+class RivalsPlayer : public OnlinePlayer {
+    private:
+        int character;
+        int ulti_charge; 
 };
 
 #endif
