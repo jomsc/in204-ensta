@@ -207,7 +207,6 @@ void GameServer::send_line_packet(int playerSource, int playerDest, int n) {
     std::cout << "Line packet with index " << n << " sent to "
               << player_list[playerDest] << " from "
               << player_list[playerSource] << " successfully." << std::endl;
-              
     return;
 }
 

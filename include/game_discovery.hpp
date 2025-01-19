@@ -22,7 +22,7 @@ struct GameInfo {
 class GameDiscovery {
 private:
     static const uint16_t DISCOVERY_PORT = 8888;
-    static const int BROADCAST_INTERVAL_MS = 1000;
+    
     
     ENetHost* discoveryHost;
     std::atomic<bool> isRunning;
@@ -31,7 +31,7 @@ private:
     GameInfo gameInfo;
 
 public:
-    
+    const int BROADCAST_INTERVAL_MS = 1000;
     GameDiscovery() : discoveryHost(nullptr), isRunning(false) {}
     
     bool initializeHost(const std::string& gameName, const std::string& motd,
