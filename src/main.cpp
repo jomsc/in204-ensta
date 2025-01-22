@@ -23,7 +23,7 @@ int main()
     OnlinePlayer online_player = OnlinePlayer();
     GameServer game_server = GameServer();
     bool host = true; 
-    bool discovery = true;
+    bool discovery = false;
 
     if (host) {
         game_server.create_game();
@@ -37,7 +37,6 @@ int main()
         if (discovery) {
             
             std::vector<GameInfo> games = online_player.game_discovery.discoverGames();
-            std::cout << "test" << std::endl;
             for (const auto& game : games) {
                 std::cout << "Game found : " << std::endl;
                 std::cout << "Name : " << game.gameName << std::endl;
@@ -56,7 +55,7 @@ int main()
                 window.close();
         }
         
-        player.update();
+        //player.update();
 
         window.clear();
         window.draw(bg);

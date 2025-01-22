@@ -5,12 +5,7 @@ bool GameDiscovery::initializeHost(const std::string& gameName,
     ENetAddress address;
     address.host = ENET_HOST_ANY;
     address.port = DISCOVERY_PORT;
-    
-    discoveryHost = enet_host_create(&address, 1, 1, 0, 0);
-    if (discoveryHost == nullptr) {
-        return false;
-    }
-    
+        
     gameInfo.gameName = gameName;
     gameInfo.gameName.resize(32, ' ');
     gameInfo.motd = motd;
@@ -25,52 +20,68 @@ bool GameDiscovery::initializeHost(const std::string& gameName,
 void GameDiscovery::startBroadcasting() {
     isRunning = true;
     broadcastThread = std::thread([this]() {
-        ENetAddress broadcastAddr;
-        broadcastAddr.host = ENET_HOST_BROADCAST;
-        broadcastAddr.port = DISCOVERY_PORT;
+
+        sock = socket(AF_INET, SOCK_DGRAM, 0);
+        if (sock < 0) {
+            perror("socket");
+            return 1;
+        }
+
+        int broadcastEnable = 1;
+        if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable,
+            sizeof(broadcastEnable))) {
+            perror("setsockopt");
+            close(sock);
+            return 1;
+        }
+
+        sockaddr_in broadcastAddr; 
+        memset(&broadcastAddr, 0, sizeof(broadcastAddr));
+        broadcastAddr.sin_family = AF_INET;
+        broadcastAddr.sin_port = htons(DISCOVERY_PORT);
+        broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255");
+
+
+        // creation du message de broadcast
+        uint8_t buffer_data[105]; // voir netcode.md pour les specs
+
+        // header
+        buffer_data[0] = 0xD4; // tete
+        buffer_data[1] = 0x01; // type : broadcast
+        buffer_data[2] = 0x01; // version : 1
+        buffer_data[3] = 0x69; // taille : 105 octets
         
-        ENetPacket* packet;
+        // game name :
+        for (int i=0;i<32;i++) {
+            buffer_data[4+i] = static_cast<uint8_t>(gameInfo.gameName[i]);
+        }
+
+        // game port
+        *reinterpret_cast<uint16_t*>(buffer_data+36) = htons(gameInfo.gamePort);
+
+        buffer_data[38] = gameInfo.currentPlayers; // nb of players
+        buffer_data[39] = gameInfo.maxPlayers; // max nb of players
+        buffer_data[40] = 0x01; // is joinable
+        
+        // game motd :
+        for (int i=0;i<64;i++) {
+            buffer_data[41+i] = static_cast<uint8_t>(gameInfo.motd[i]);
+        }
+
+
         while (isRunning) {
-            // creation du message de broadcast
-            uint8_t buffer_data[105]; // voir netcode.md pour les specs
-
-            // header
-            buffer_data[0] = 0xD4; // tete
-            buffer_data[1] = 0x01; // type : broadcast
-            buffer_data[2] = 0x01; // version : 1
-            buffer_data[3] = 0x69; // taille : 105 octets
+            buffer_data[38] = gameInfo.currentPlayers;
+            ssize_t sent = sendto(sock, buffer_data, 105, 0,
+                            (sockaddr*)&broadcastAddr, sizeof(broadcastAddr));
             
-            // game name :
-            for (int i=0;i<32;i++) {
-                buffer_data[4+i] = static_cast<uint8_t>(gameInfo.gameName[i]);
+            if (sent < 0) {
+                perror("sendto");
+                close(sock);
+                return 1;
             }
-
-            // game port
-            *reinterpret_cast<uint16_t*>(buffer_data+36) = htons(gameInfo.gamePort);
-
-            buffer_data[38] = gameInfo.currentPlayers; // nb of players
-            buffer_data[39] = gameInfo.maxPlayers; // max nb of players
-            buffer_data[40] = 0x01; // is joinable
             
-            // game motd :
-            for (int i=0;i<64;i++) {
-                buffer_data[41+i] = static_cast<uint8_t>(gameInfo.motd[i]);
-            }
-       
-            ENetBuffer buffer;
-            buffer.data = buffer_data;
-            buffer.dataLength = 105;
+            std::cout << "Broadcasted server presence." << std::endl;
 
-            // Broadcast the packet
-            enet_socket_send(discoveryHost->socket, 
-                            &broadcastAddr, 
-                            &buffer, 
-                            1);
-            
-            enet_packet_destroy(packet);
-
-            std::cout << "sent packet for broadcast" << std::endl;
-            
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(BROADCAST_INTERVAL_MS)
             );
@@ -83,10 +94,7 @@ void GameDiscovery::stopBroadcasting() {
     if (broadcastThread.joinable()) {
         broadcastThread.join();
     }
-    if (discoveryHost) {
-        enet_host_destroy(discoveryHost);
-        discoveryHost = nullptr;
-    }
+    close(sock);
 }
 
 void GameDiscovery::updatePlayerCount(int currentPlayers) {
