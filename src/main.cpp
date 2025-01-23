@@ -21,7 +21,8 @@ int main()
     bg.setFillColor(bg_color);
 
     OnlinePlayer online_player = OnlinePlayer();
-    GameServer game_server = GameServer();
+    GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
+                                        25565, 2);
     bool host = true; 
     bool discovery = false;
 
