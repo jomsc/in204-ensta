@@ -20,7 +20,9 @@ int main()
     sf::Clock clock;
 
     Player player = Player();
+    OnlinePlayer online_player = OnlinePlayer();
 
+    int status = 2; // 0 : menu, 1 : classic game, 2 : LAN screen, 3 : LAN game
 
     player.grid.size_cell=(VIDEO_HEIGHT-2*player.grid.y_offset
         -player.grid.line_thickness*(player.grid.numrows+1))/(player.grid.numrows+1);
@@ -56,7 +58,6 @@ int main()
     bgVideoSprite.setTexture(bgVideoTexture);
     bgVideoSprite.setScale(sf::Vector2f(scaleX, scaleY));
 
-    OnlinePlayer online_player = OnlinePlayer();
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
                                         25565, 2);
     bool host = true; 
@@ -71,18 +72,57 @@ int main()
     while (window.isOpen()) {
         clock.restart();
 
-        if (discovery) {
-            
-            std::vector<GameInfo> games = online_player.game_discovery.discoverGames();
-            for (const auto& game : games) {
-                std::cout << "Game found : " << std::endl;
-                std::cout << "Name : " << game.gameName << std::endl;
-                std::cout << "Port : " << game.gamePort << std::endl;
-                std::cout << "MOTD : " << game.motd << std::endl;
-                std::cout << std::endl;
-            }
+        switch (status) {
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            case 0:
+                // menu
+                // TO DO : display menu, handle mouse to select 
+                break;
+
+            case 1:
+                player.update();
+                window.clear();
+                window.draw(bg);
+                player.display(&window);
+                window.display();
+                break;
+
+            case 2:
+                if (discovery) {
+                    std::vector<GameInfo> games = online_player.game_discovery.discoverGames();
+                    for (const auto& game : games) {
+                        std::cout << "Game found : " << std::endl;
+                        std::cout << "Name : " << game.gameName << std::endl;
+                        std::cout << "Port : " << game.gamePort << std::endl;
+                        std::cout << "MOTD : " << game.motd << std::endl;
+                        std::cout << std::endl;
+                    }
+                    std::cout << "choose a game (-1 to refuse)" << std::endl;
+                    int game_chosen;
+                    std::cin >> game_chosen;
+                    
+                    if (game_chosen!=-1 && game_chosen <= games.size()) {
+                        std::string pseudo;
+                        std::cout << "choose your pseudo (16 characters max)" << std::endl;
+                        std::cin >> pseudo;
+                        bool success = false;
+                        success = online_player.connect_to_server(games[game_chosen], pseudo);
+                        if (success) {
+                            status = 3;
+                        }
+                    }
+                } else {
+                    std::cout << "server mode" << std::endl;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                break;
+            
+            case 3:
+                break;
+            
+            default:
+                break;
+
         }
 
         sf::Event event;
@@ -92,19 +132,7 @@ int main()
                 window.close();
         }
         
-        player.update();
-
-        int bgFrameCounter = (int)((bgClock.getElapsedTime().asMilliseconds()%3566)/34);
-        sf::IntRect srcRect = sf::IntRect(vidY[bgFrameCounter+1], 
-                                          vidX[bgFrameCounter+1],
-                                          1920,
-                                          1080);
-        bgVideoSprite.setTextureRect(srcRect);
-        
-        window.clear();
-        window.draw(bgVideoSprite);
-        player.display(&window);
-        window.display();
+        //
         
         sf::Time elapsed = clock.getElapsedTime();
         //std::cout << "Render time : " << elapsed.asMilliseconds() << " ms" << std::endl;
