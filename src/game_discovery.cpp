@@ -57,7 +57,7 @@ void GameDiscovery::startBroadcasting() {
         }
 
         // game port
-        *reinterpret_cast<uint16_t*>(buffer_data+36) = htons(gameInfo.gamePort);
+        *reinterpret_cast<uint16_t*>(buffer_data+36) = gameInfo.gamePort;
 
         buffer_data[38] = gameInfo.currentPlayers; // nb of players
         buffer_data[39] = gameInfo.maxPlayers; // max nb of players
