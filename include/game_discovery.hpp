@@ -122,7 +122,7 @@ public:
             char serverIP[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &fromAddr.sin_addr, serverIP, INET_ADDRSTRLEN);
 
-            game.gamePort = ntohs(static_cast<uint16_t>(buffer[36]) << 8 + buffer[37]);
+            game.gamePort = (buffer[36] << 8) + buffer[37];
             game.currentPlayers = buffer[38];
             game.maxPlayers = buffer[39];
             game.isJoinable = buffer[40];
