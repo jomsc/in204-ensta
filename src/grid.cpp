@@ -91,117 +91,140 @@ void Grid::spawn(int type) {
     }
 }
 
-void Grid::update(int input) {
+void Grid::update(bool *floor, bool* left_wall, bool* right_wall, bool* lock_in) 
+{
 
-    if (!pieces.empty()) {
-        for (int v=0;v<pieces.size();v++) {
-            // on enleve la piece de la grid
-            for (int i=0;i<4;i++) {
-                for (int j=0;j<4;j++) {
-                    if (pieces[v].x+j >= 0 
-                        && pieces[v].x+j < numcols 
-                        && pieces[v].y+i >= 0 
-                        && pieces[v].y+i < numrows) {
-                        
-                        if (pieces[v].shape[4*i+j] == 1) {
-                            this->cells[(pieces[v].y+i)*numcols + pieces[v].x+j] = -1; 
+    if (!pieces.empty()) 
+    {
+        for (int v=0;v<pieces.size();v++) 
+        {
+
+        //on check s'il y a un mur à droite
+        for (int i=0;i<4;i++) 
+            {
+                for (int j=0;j<4;j++) 
+                {
+                   if (pieces[v].shape[4*i+j] == 1) 
+                    {
+                        if (pieces[v].x+j >= numcols-1 ||
+                            cells[(pieces[v].y+i)*numcols + pieces[v].x+j+1] > 0)
+                        {
+                            *right_wall=true;
                         }
                     }
                 }
-
             }
 
-            bool possible = true;
-            // on bouge la pièce en fonction de l'input
-            switch (input) {
-                case 0: 
-                    // gauche
-                    
-                    for (int i=0;i<4;i++) {
-                        for (int j=0;j<4;j++) {
-                            if (pieces[v].shape[4*i+j] == 1) {
-                                if (pieces[v].x+j < 1 ||
-                                    cells[(pieces[v].y+i)*numcols + pieces[v].x+j-1] > 0) {
-                                    possible = false;
-                                }
-                            }
+        //on check s'il y a un mur à gauche
+        for (int i=0;i<4;i++) 
+            {
+                for (int j=0;j<4;j++) 
+                {
+                   if (pieces[v].shape[4*i+j] == 1) 
+                    {
+                        if (pieces[v].x < 1 ||
+                        cells[(pieces[v].y+i)*numcols + pieces[v].x+j-1] > 0)
+                        {
+                            *left_wall=true;
                         }
-                    }
-                    if (possible)
-                        pieces[v].x -= 1;
-                        possible = false;
-                    break;
-
-                case 1: 
-                    // droite
-                    for (int i=0;i<4;i++) {
-                        for (int j=0;j<4;j++) {
-                            if (pieces[v].shape[4*i+j] == 1) {
-                                if (pieces[v].x+j >= numcols-1 ||
-                                    cells[(pieces[v].y+i)*numcols + pieces[v].x+j+1] > 0) {
-                                    possible = false;
-                                }
-                            }
-                        }
-                    }
-                    if (possible)
-                        pieces[v].x += 1;
-                        possible = false;
-                    break;
-
-                case 2: 
-                    // bas
-                    for (int i=0;i<4;i++) {
-                        for (int j=0;j<4;j++) {
-                            if (pieces[v].shape[4*i+j] == 1) {
-                                if (pieces[v].y+i >= numrows-1 ||
-                                    cells[(pieces[v].y+i+1)*numcols + pieces[v].x+j] > 0) {
-                                    possible = false;
-                                }
-                            }
-                        }
-                    }
-                    if (possible)
-                        pieces[v].y += 1;
-                        soft_lock_clock.restart();
-                        possible = false;
-                    break;
-
-
-            }
-
-            // on update la grid
-            for (int i=0;i<4;i++) {
-                for (int j=0;j<4;j++) {
-                    if (pieces[v].shape[4*i+j] == 1) {
-                        this->cells[(pieces[v].y+i)*numcols + pieces[v].x+j] = 0; 
                     }
                 }
-
             }
-            
-            // on vérifie si ce mouvement amene a ce que la piece soit immobilisée
-            // si oui, on ajoute la piece à la grid
-            // et on la retire des pieces qui tombent
-            for (int i=0;i<4;i++) {
-                for (int j=0;j<4;j++) {
-                    if (pieces[v].shape[4*i+j] == 1 
-                        && (this->cells[(pieces[v].y+i+1)*numcols + pieces[v].x+j] > 0
-                        || pieces[v].y+i+1 >= numrows) && soft_lock_clock.getElapsedTime().asMilliseconds()>150) {
-                        for (int k=0;k<4;k++) {
-                            for (int l=0;l<4;l++) {
-                                if (pieces[v].shape[4*k+l] == 1)
-                                    cells[(pieces[v].y+k)*numcols+pieces[v].x+l] = pieces[v].type+1;
-                        }
+
+
+
+        //on check s'il un qqchose qui bloque en dessous
+    for (int i=0;i<4;i++) 
+        {
+            for (int j=0;j<4;j++) 
+            {
+                if (pieces[v].shape[4*i+j] == 1 
+                    && (this->cells[(pieces[v].y+i+1)*numcols + pieces[v].x+j] > 0
+                    || pieces[v].y+i+1 >= numrows)) 
+                {
+                    *floor=true;
+                }
+            }
+        }
+
+        //si oui on lock la pièce
+    if(*lock_in)
+    {
+        *lock_in=false;
+            for (int i=0;i<4;i++) 
+            {
+                for (int j=0;j<4;j++) 
+                {
+                    for (int k=0;k<4;k++) 
+                    {
+                        for (int l=0;l<4;l++) 
+                        {
+                            if (pieces[v].shape[4*k+l] == 1)
+                            {
+                                cells[(pieces[v].y+k)*numcols+pieces[v].x+l] = pieces[v].type+1;
                             }
-                        pieces.erase(pieces.begin()+i);
-                        return;
+                        }
                     }
+                            pieces.erase(pieces.begin()+i);
+                            return;
+                }
+            }
+    }
+
+
+        }
+    }
+}
+
+/*bool Grid::floor_check() {
+    // on vérifie si ce mouvement amene a ce que la piece soit immobilisée
+    for (int v=0;v<pieces.size();v++)
+    {
+        for (int i=0;i<4;i++) 
+        {
+            for (int j=0;j<4;j++)
+            {
+                if (pieces[v].shape[4*i+j] == 1 && (this->cells[(pieces[v].y+i+2)*numcols + pieces[v].x+j] > 0
+                    || pieces[v].y+i+2 >= numrows)) //si une case en dessous de la pièce est occupée ou si la pièce a atteint
+                                                    //le bas de la grille
+                {
+                    return true;
+                }
+                    else
+                {
+                    return false;
                 }
             }
         }
     }
 }
+
+void Grid::lock_piece(){
+    for (int v=0;v<pieces.size();v++)
+    {    
+        printf("ok1");
+        for (int k=0;k<4;k++) 
+        {
+            printf("ok2");
+            for (int l=0;l<4;l++) 
+            {
+                printf("ok3");
+                if (pieces[v].shape[4*k+l] == 1)
+                {
+                    printf("ok4");
+                    cells[(pieces[v].y+k)*numcols+pieces[v].x+l] = pieces[v].type+1;
+                }
+            }
+        }
+        for(int i=0;i<4;i++)
+        {
+        pieces.erase(pieces.begin()+i);
+        printf("ok5");
+        }
+        return;
+    }
+}*/
+
 
 /*On vérifie si un ligne est pleine*/
 
