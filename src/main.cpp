@@ -163,7 +163,6 @@ int main(int argc, char **argv)
                 window.close();
         }
         
-        //
         
         sf::Time elapsed = clock.getElapsedTime();
         //std::cout << "Render time : " << elapsed.asMilliseconds() << " ms" << std::endl;

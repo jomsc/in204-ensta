@@ -961,6 +961,33 @@ void Grid::wall_kick_counterclockwise(int type,int orientation)
     }
 }
 
+void Grid::lock_piece(){
+    for (int v=0;v<pieces.size();v++)
+    {    
+        printf("ok1");
+        for (int k=0;k<4;k++) 
+        {
+            printf("ok2");
+            for (int l=0;l<4;l++) 
+            {
+                printf("ok3");
+                if (pieces[v].shape[4*k+l] == 1)
+                {
+                    printf("ok4");
+                    cells[(pieces[v].y+k)*numcols+pieces[v].x+l] = pieces[v].type+1;
+                }
+            }
+        }
+        for(int i=0;i<4;i++)
+        {
+        pieces.erase(pieces.begin()+i);
+        printf("ok5");
+        }
+        return;
+    }
+}*/
+
+
 /*On vérifie si un ligne est pleine*/
 
 std::vector<int> Grid::check_lines() {
