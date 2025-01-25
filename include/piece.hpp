@@ -50,14 +50,35 @@ class Piece {
                 case 0:
                     return;
                 case 1:
-                    this->orientation = !this->orientation;
-                    break;
+                    if(input_rota==0)
+                    {
+                        this->orientation = (this->orientation+1) % 4;
+                        break;
+                    } else 
+                    {
+                        this->orientation = (this->orientation+3) % 4;
+                        break;
+                    }
                 case 2:
-                    this->orientation = !this->orientation;
-                    break;
+                    if(input_rota==0)
+                    {
+                        this->orientation = (this->orientation+1) % 4;
+                        break;
+                    } else 
+                    {
+                        this->orientation = (this->orientation+3) % 4;
+                        break;
+                    }
                 case 3:
-                    this->orientation = !this->orientation;
-                    break;
+                    if(input_rota==0)
+                    {
+                        this->orientation = (this->orientation+1) % 4;
+                        break;
+                    } else 
+                    {
+                        this->orientation = (this->orientation+3) % 4;
+                        break;
+                    }
                 case 4:
                     if(input_rota==0)
                     {
@@ -97,6 +118,24 @@ class Piece {
                 this->shape[i] = piece_data.shape[i+piece_data.offsets[this->type]+this->orientation*16];
             }
             //piece_data.~PieceData();
+        }
+
+        void move(int move_input)
+        {
+            switch(move_input)
+            {
+                case 0: //gauche
+                    this->x-=1;
+                    break;
+                case 1: //droite
+                    this->x+=1;
+                    break;
+                case 2: //bas
+                    this->y+=1;
+                    break;
+                case -1:
+                    break;
+            }
         }
 };
 

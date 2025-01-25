@@ -51,43 +51,124 @@ void Player::update() {
     int input = -1;
     int input_rota = -1;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-        input = 0;
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-        input = 1;
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        input = 2;
-    } else  {
-        input = -1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)&&
+            movement_clock.getElapsedTime().asMilliseconds() > 155)
+        {
+            if(!left_wall)
+            {
+            grid.pieces[0].move(0);
+            floor=false;
+            right_wall=false;
+            grid.update(&floor,&left_wall,&right_wall,&lock_in);
+            movement_clock.restart();
+            }
+            else
+            {
+            grid.update(&floor,&left_wall,&right_wall,&lock_in);
+            movement_clock.restart();
+            }
+        } 
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)&&
+            movement_clock.getElapsedTime().asMilliseconds() > 155) 
+        {
+        if(!right_wall)
+            {
+            grid.pieces[0].move(1);
+            floor=false;
+            left_wall=false;
+            grid.update(&floor,&left_wall,&right_wall,&lock_in);
+            movement_clock.restart();
+            }
+            else
+            {
+            grid.update(&floor,&left_wall,&right_wall,&lock_in);
+            movement_clock.restart();
+            }
+        } 
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)&&
+            movement_clock.getElapsedTime().asMilliseconds() > 155) 
+        {
+            if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
+            {
+                grid.update(&floor,&left_wall,&right_wall,&lock_in);
+                movement_clock.restart();
+            }
+            else if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()>150)
+            {
+                lock_in=true;
+                grid.update(&floor,&left_wall,&right_wall,&lock_in);
+                movement_clock.restart();
+            }
+             else
+            {
+                floor=false;
+                grid.pieces[0].move(2);
+                grid.update(&floor,&left_wall,&right_wall,&lock_in);
+                movement_clock.restart();
+            }
+        } 
+    else 
+    {
+        if (gravity_clock.getElapsedTime().asSeconds() > speed) 
+        {
+            if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
+            {
+                grid.update(&floor,&left_wall,&right_wall,&lock_in);
+                gravity_clock.restart();
+            }
+            else if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()>150)
+            {
+                lock_in=true;
+                grid.update(&floor,&left_wall,&right_wall,&lock_in);
+                gravity_clock.restart();
+            }    
+            else
+            {
+                floor=false;
+                grid.pieces[0].move(2);
+                grid.update(&floor,&left_wall,&right_wall,&lock_in);
+                gravity_clock.restart();
+            }
+        }
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
+        {
         this->speed = get_speed(14);
-    } else {
+        } 
+        else 
+        {
         this->speed= get_speed(this->level-1);
         }
 
+
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && 
-            rotate_clock.getElapsedTime().asMilliseconds() > 200) {
+            rotate_clock.getElapsedTime().asMilliseconds() > 200) 
+        {
         grid.pieces[0].rotate(0);
+        left_wall=false;
+        right_wall=false;
+        grid.update(&floor,&left_wall,&right_wall,&lock_in);
         rotate_clock.restart();
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && 
-            rotate_clock.getElapsedTime().asMilliseconds() > 200) {
+        }   
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && 
+            rotate_clock.getElapsedTime().asMilliseconds() > 200)
+        {
         grid.pieces[0].rotate(1);
+        left_wall=false;
+        right_wall=false;
+        grid.update(&floor,&left_wall,&right_wall,&lock_in);
         rotate_clock.restart();
-    }
+        }
 
-    if (gravity_clock.getElapsedTime().asSeconds() > speed) {
-        grid.update(2);
-        gravity_clock.restart();
-    }
 
-    if (movement_clock.getElapsedTime().asMilliseconds() > 155) {
-        grid.update(input);
-        movement_clock.restart();
-    } 
 
     if (grid.pieces.empty()) {
+        left_wall=false;
+        right_wall=false;
+        floor=false;
         grid.spawn(this->buffer[0]);
         update_next_pieces();
     }

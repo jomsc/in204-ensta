@@ -56,7 +56,7 @@ int main()
                 window.close();
         }
         
-        //player.update();
+        player.update();
 
         window.clear();
         window.draw(bg);

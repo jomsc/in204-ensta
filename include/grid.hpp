@@ -12,8 +12,6 @@ class Grid {
         int numcols;
         int size_cell;
         int line_thickness;
-
-        sf::Clock soft_lock_clock;
         sf::Font arial;
 
         
@@ -26,7 +24,12 @@ class Grid {
         void draw(sf::RenderWindow *window, int score, int level);
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
-        void update(int input);
+        void update(bool* floor, bool* left_wall, bool* right_wall, bool* lock_in);
+
+       // bool wall_check();
+        //bool floor_check();
+        //void lock_piece();
+
         std::vector<int> check_lines();
         void clear_line(int line);
         int get_dimensions() { return numrows*numcols; }
@@ -46,7 +49,7 @@ class Grid {
             }
 
             size_cell = 40;
-            line_thickness = 2;
+            line_thickness = 1;
 
             pieces = std::vector<Piece>();
 

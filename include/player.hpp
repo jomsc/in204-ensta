@@ -48,7 +48,13 @@ class Player {
     public:
         Grid grid;
         uint32_t seed;
+        bool floor=false;
+        bool lock_in=false;
+        bool right_wall= false;
+        bool left_wall= false;
 
+        sf::Clock soft_lock_clock;
+        
         void display(sf::RenderWindow *window);
         void update();
         void update_next_pieces();
