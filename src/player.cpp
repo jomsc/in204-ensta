@@ -1,10 +1,12 @@
 #include "player.hpp"
 #include <iostream>
 
+// done
 void Player::display(sf::RenderWindow *window) {
     grid.draw(window, this->score, this->level);
 }
 
+// done
 void Player::update_next_pieces(){
             for(int i=0;i<2;i++){
             this->buffer[i]=this->buffer[i+1];
@@ -12,6 +14,7 @@ void Player::update_next_pieces(){
             this->buffer[2]= rand()%7;
         }
 
+// done
 void Player::update_score(int num_lines_cleared,int level){
     switch (num_lines_cleared)
     {
@@ -40,12 +43,15 @@ void Player::update_score(int num_lines_cleared,int level){
     }
 }
 
+// done
 void Player::update_level(){
     if(this->level_up_buffer>=10){
         this->level++;
         this->level_up_buffer=this->level_up_buffer%10;
     }
 }
+
+// done
 void Player::update() {
 
     int input = -1;

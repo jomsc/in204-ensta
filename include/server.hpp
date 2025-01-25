@@ -18,14 +18,20 @@ class GameServer {
         std::vector<int> piece_list; // liste des pieces generees
         std::vector<int> rand_index; // index pour chaque joueur, ou il en est
 
-        std::vector<ENetPeer*> player_peers;
-        ENetHost* server_host;
-
         uint32_t seed;
         uint32_t sequence_number;
 
         int simulationRate = 10;
         
+        int gamesock_fd;
+        struct sockaddr_in servaddr;
+        struct sockaddr_in cliaddr;
+        std::vector<struct sockaddr_in> cliaddr_list;
+        uint8_t buffer[1024];
+
+        std::thread receiveThread;
+
+
 
     public:
         GameServer() {
@@ -54,7 +60,8 @@ class GameServer {
         }
 
         void create_game(); 
-        void handle_join_requests();
+        void handle_join_requests(std::string pseudo, 
+                                 struct sockaddr_in cliaddr);
         bool start_game();
         void update();
         void handle_received_packets();

@@ -97,6 +97,13 @@ class OnlinePlayer : public Player {
         char pseudo[16];
         bool isGameStarted = false;
 
+        int gamesock_fd;
+        struct sockaddr_in servaddr;
+        struct sockaddr_in cliaddr;
+        uint8_t buffer[1024];
+
+        std::thread receiveThread;
+
     public:
         void handle_received_packets(ENetPacket* packet);
         void send_packet(int input, int malus);
@@ -106,21 +113,17 @@ class OnlinePlayer : public Player {
         GameDiscovery game_discovery = GameDiscovery();
 
         OnlinePlayer() {
-            if (enet_initialize () != 0) {
-                fprintf (stderr, "ENet initialization error.\n");
-            }
-
-            client = enet_host_create(NULL, 1, 2, 0, 0);
-
-            if (client == NULL) {
-                fprintf (stderr, "ENet client host creation error.\n");
+            if ( (gamesock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+                perror("game server socket creation failed");
                 exit(EXIT_FAILURE);
             } 
+            
+            memset(&servaddr, 0, sizeof(servaddr));
+            memset(&cliaddr, 0, sizeof(cliaddr));
         }
 
         ~OnlinePlayer() {
-            enet_host_destroy(client);
-            enet_deinitialize();
+            close(gamesock_fd);
         }
 };
 
