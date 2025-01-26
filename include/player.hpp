@@ -24,6 +24,7 @@ class Player {
         sf::Clock gravity_clock;
         sf::Clock rotate_clock;
         sf::Clock movement_clock;
+        sf::Clock spawn_wait_clock;
 
         uint32_t sequence_number;
 

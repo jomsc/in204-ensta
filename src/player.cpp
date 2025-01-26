@@ -46,6 +46,7 @@ void Player::update_level(){
         this->level_up_buffer=this->level_up_buffer%10;
     }
 }
+
 void Player::update() {
 
     int input = -1;
@@ -86,7 +87,8 @@ void Player::update() {
             }
         } 
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)&&
-            movement_clock.getElapsedTime().asMilliseconds() > 155) 
+            movement_clock.getElapsedTime().asMilliseconds() > 155&&
+            spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) 
         {
             if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
             {
@@ -109,10 +111,9 @@ void Player::update() {
         } 
     else 
     {
-        if (gravity_clock.getElapsedTime().asSeconds() > speed) 
+        if (gravity_clock.getElapsedTime().asSeconds() > speed&&
+        spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) 
         {
-            printf("%B\n",left_wall);
-            printf("%d\n",grid.pieces[0].x);
             if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
             {
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
@@ -135,7 +136,8 @@ void Player::update() {
     }
 
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)&&
+    spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) 
         {
         this->speed = get_speed(14);
         } 
@@ -176,6 +178,7 @@ void Player::update() {
         right_wall=false;
         floor=false;
         grid.spawn(this->buffer[0]);
+        spawn_wait_clock.restart();
         update_next_pieces();
     }
 
