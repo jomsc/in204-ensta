@@ -11,6 +11,7 @@ class Grid {
         int numrows;
         int numcols;
         int size_cell;
+        int size_waiting_cell;
         int line_thickness;
         sf::Font arial;
 
@@ -26,6 +27,8 @@ class Grid {
         void spawn(int type);
         void update(bool* floor, bool* left_wall, bool* right_wall, bool* lock_in);
         void top_out();
+        void draw_in_waiting_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
+        void draw_next_pieces(int buffer[3]);
 
         bool impossible_kick(int x1,int y1,int orientation);
         void wall_kick_clockwise(int type, int orientation);
@@ -50,6 +53,7 @@ class Grid {
             }
 
             size_cell = 40;
+            size_waiting_cell=25;
             line_thickness = 2;
 
             pieces = std::vector<Piece>();

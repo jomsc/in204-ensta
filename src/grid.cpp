@@ -58,7 +58,7 @@ void Grid::draw(sf::RenderWindow *window, int score, int level) {
     score_text.setStyle(sf::Text::Bold);
     score_text.setFillColor(sf::Color::White);
     score_text.setPosition(numcols*(size_cell+line_thickness)
-                           +line_thickness+x_offset*2, y_offset);
+                           +line_thickness+x_offset+10, y_offset);
     window->draw(score_text);
 
     // on dessine le niveau 
@@ -68,7 +68,7 @@ void Grid::draw(sf::RenderWindow *window, int score, int level) {
     level_text.setStyle(sf::Text::Bold);
     level_text.setFillColor(sf::Color::White);
     level_text.setPosition(numcols*(size_cell+line_thickness)
-                           +line_thickness+x_offset*2, 2*y_offset+30);
+                           +line_thickness+x_offset+10, 2*y_offset+30);
     window->draw(level_text);
 }
 
