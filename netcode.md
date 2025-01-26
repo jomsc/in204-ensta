@@ -18,7 +18,17 @@ sinon, envoyer les CHANGEMENTS
 
 envoyer/recevoir les lignes (mode de jeu classique)
 
-paquet game broadcast {
+paquet game broadcast request {
+  - header :
+    - tete : 0xD4
+    - type : 0x00
+    - version : 0x01
+    - taille : 5
+  - request game list : 1 pour classique, 2 pour rivals
+}
+
+
+paquet game broadcast answer {
     - header :
       - tete (1 byte) : OBLIGATOIRE 0xD4
       - type (1 byte) : 0x01

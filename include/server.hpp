@@ -41,8 +41,6 @@ class GameServer {
             gameInfo.maxPlayers = 2;
             gameInfo.currentPlayers = 0;
             gameInfo.isJoinable = 1;
-            gameInfo.serverAddress.host = ENET_HOST_ANY;
-            gameInfo.serverAddress.port = gameInfo.gamePort;
         }
         GameServer(std::string gameName, std::string motd, 
                     int gamePort, int maxPlayers) {
@@ -55,8 +53,6 @@ class GameServer {
             gameInfo.maxPlayers = maxPlayers;
             gameInfo.currentPlayers = 0;
             gameInfo.isJoinable = 1;
-            gameInfo.serverAddress.host = ENET_HOST_ANY;
-            gameInfo.serverAddress.port = gameInfo.gamePort;
         }
 
         void create_game(); 

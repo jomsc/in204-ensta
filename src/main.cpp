@@ -53,7 +53,7 @@ int main()
 
             case 2:
                 if (discovery) {
-                    std::vector<GameInfo> games = online_player.game_discovery.discoverGames();
+                    std::vector<GameInfo> games = online_player.game_discovery.discoverGames(2000, 1);
                     for (const auto& game : games) {
                         std::cout << "Game found : " << std::endl;
                         std::cout << "Name : " << game.gameName << std::endl;
@@ -69,8 +69,9 @@ int main()
                         std::string pseudo;
                         std::cout << "choose your pseudo (16 characters max)" << std::endl;
                         std::cin >> pseudo;
+                        online_player.setPseudo(pseudo);
                         bool success = false;
-                        success = online_player.connect_to_server(games[game_chosen], pseudo);
+                        success = online_player.connect_to_server(games[game_chosen]);
                         if (success) {
                             status = 3;
                         }
