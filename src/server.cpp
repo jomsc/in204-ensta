@@ -171,6 +171,7 @@ void GameServer::handle_received_packets() {
 
             case 2:
                 // join request
+                std::cout << "Join request recieved" << std::endl;
                 if (buffer[4]==1) {
                     pseudo.resize(16, ' ');
                     for (int i=0;i<16;i++) {

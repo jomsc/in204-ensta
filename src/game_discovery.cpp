@@ -16,6 +16,7 @@ bool GameDiscovery::initializeHost(const std::string& gameName,
 
 void GameDiscovery::startBroadcasting() {
     isRunning = true;
+    std::cout << "started broadcasting" << std::endl;
     broadcastThread = std::thread([this]() {
 
         discosock_fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -122,7 +123,9 @@ std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameTy
     memset(&broadcastAddr, 0, sizeof(broadcastAddr));
     broadcastAddr.sin_family = AF_INET;
     broadcastAddr.sin_port = htons(DISCOVERY_PORT);
-    broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255");
+    //broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255");
+    broadcastAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
 
     uint8_t buffer[1024];
     sockaddr_in fromAddr;
