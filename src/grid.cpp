@@ -229,7 +229,7 @@ bool Grid::impossible_kick(int x1,int y1,int sens)
             {
                 if(temp[0].shape[4*i+j]==1)
                 {
-                    if(this->cells[(temp[0].y+i)*numcols+temp[0].x]>0||
+                    if(this->cells[(temp[0].y+i)*numcols+temp[0].x+j]>0||
                       temp[0].x+j < 0 ||
                       temp[0].x+j>=numcols)
                     {
