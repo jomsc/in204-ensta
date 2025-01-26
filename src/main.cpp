@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     
 
     sf::RectangleShape bg(sf::Vector2f(800, 1000));
-    sf::Color bg_color = sf::Color(75, 75, 75);
+    sf::Color bg_color = sf::Color(0, 0, 50);
     bg.setFillColor(bg_color);
 
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
