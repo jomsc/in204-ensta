@@ -37,7 +37,7 @@ class Grid {
         bool hasLost() {}
 
         Grid() {
-            x_offset = 10;
+            x_offset = 600;
             y_offset = 10;
             numrows = 22;
             numcols = 10;
@@ -50,7 +50,7 @@ class Grid {
             }
 
             size_cell = 40;
-            line_thickness = 1;
+            line_thickness = 2;
 
             pieces = std::vector<Piece>();
 
