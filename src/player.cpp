@@ -1,12 +1,10 @@
 #include "player.hpp"
 #include <iostream>
 
-// done
 void Player::display(sf::RenderWindow *window) {
     grid.draw(window, this->score, this->level,this->buffer);
 }
 
-// done
 void Player::update_next_pieces(){
             for(int i=0;i<2;i++){
             this->buffer[i]=this->buffer[i+1];
@@ -14,7 +12,6 @@ void Player::update_next_pieces(){
             this->buffer[2]= rand()%7;
         }
 
-// done
 void Player::update_score(int num_lines_cleared,int level){
     switch (num_lines_cleared)
     {
@@ -43,7 +40,6 @@ void Player::update_score(int num_lines_cleared,int level){
     }
 }
 
-// done
 void Player::update_level(){
     if(this->level_up_buffer>=10){
         this->level++;
@@ -205,26 +201,27 @@ void Player::update() {
     update_level();
 }
 
-bool OnlinePlayer::connect_to_server(GameInfo gameInfo, std::string pseudo) {
-    ENetEvent event;
-    ENetAddress address = gameInfo.serverAddress;
-
-    // initialisation de la connection ENet
-    server = enet_host_connect (this->client, &address, 2, 0);    
+bool OnlinePlayer::connect_to_server(GameInfo gameInfo) {
     
-    if (server == NULL) {
-        fprintf (stderr,  "ENet connection initialization peer error.\n");
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(gameInfo.gamePort);
+
+    if (inet_pton(AF_INET, gameInfo.serverIP, &servaddr.sin_addr) <= 0) {
+        perror("Invalid address / Address not supported");
+        close(gamesock_fd);
         return false;
     }
     
-    if (enet_host_service (client, & event, 5000) > 0 &&
-        event.type == ENET_EVENT_TYPE_CONNECT) {
+    if (connect(gamesock_fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
+        perror("Connection to server failed.");
+        close(gamesock_fd);
+        return false;
+    } else {
+        // connection succeeded, sending game packet 
         std::cout << "Connection to " << gameInfo.gameName <<
         ":" << gameInfo.gamePort << " succeeded." << std::endl;
-        
-        // echange du paquet de connection défini dans netcode.md
-        
-        // creation du message de broadcast
+
+
         uint8_t buffer_data[21]; // voir netcode.md pour les specs
 
         // header
@@ -239,137 +236,156 @@ bool OnlinePlayer::connect_to_server(GameInfo gameInfo, std::string pseudo) {
             buffer_data[5+i] = static_cast<uint8_t>(pseudo[i]);
         }
 
-        ENetPacket* packet = enet_packet_create(buffer_data, 
-                                                buffer_data[3]+1,
-                                                ENET_PACKET_FLAG_RELIABLE);
-        enet_peer_send(server, 0, packet);
+        ssize_t bytes_sent = send(gamesock_fd, buffer_data, buffer_data[3], 0);
 
-        if (enet_host_service(client, &event, 1000) > 0) {
-            if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-                uint8_t* data = static_cast<uint8_t*>(event.packet->data);
-
-                if (data[0] != 0xD4) {
-                    std::cout << "incorrect head: " << data[0] << std::endl;
-                    return false;
-                }
-
-                if (data[1] != 0x02) {
-                    std::cout << "incorrect type: " << data[1] << std::endl;
-                    return false;
-                }
-
-                if (data[2] != 0x01) {
-                    std::cout << "incorrect version: " << data[2] << std::endl;
-                    return false;
-                }
-
-                if (data[3] != event.packet->dataLength-1) {
-                    std::cout << "incorrect size: " 
-                    << event.packet->dataLength-1 
-                    << " with expected length: " << data[3] << std::endl;
-                    return false;
-                }
-
-                switch (data[4]) {
-                    case 1:
-                        std::cout << "Unexpected request." << std::endl;
-                        return false;
-                    case 2:
-                        std::cout << "Join request accepted" << std::endl;
-                        pseudo.resize(16, ' ');
-                        for (int i=0;i<16;i++) {
-                            pseudo[i] = static_cast<char>(data[5+i]);
-                        }
-                        this->seed = *reinterpret_cast<uint32_t*>(data[21]);
-                        return true;
-                    case 3:
-                        std::cout << "Join request refused : server full" << std::endl;
-                        return false;
-                    case 4:
-                        std::cout << "Join request refused : pseudo already taken" << std::endl;
-                        return false;
-                    case 5: 
-                        std::cout << "Join request refused : unspecified reasons" << std::endl;
-                        return false;
-                    default:
-                        return false;
-                }
-            }
+        if (bytes_sent < 0) { 
+            perror("Join request send failed.");
+            close(gamesock_fd);
+            return false;
         }
-    } else {
-        enet_peer_reset (server);
-        std::cout << "Connection to " << gameInfo.gameName <<
-        ":" << gameInfo.gamePort << " failed." << std::endl;
-        return false;
+
+        std::cout << "Join request sent, waiting for response." << std::endl;
+
+        uint8_t buffer[1024];
+        ssize_t bytes_received = recv(gamesock_fd, buffer, sizeof(buffer)-1,0);
+
+        if (bytes_received < 0) {
+            perror("Join request response receive failed.");
+            return false;
+        }
+
+        if (buffer[0] != 0xD4) {
+            std::cout << "incorrect head: " << buffer[0] << std::endl;
+            return false;
+        }
+
+        if (buffer[1] != 0x02) {
+            std::cout << "incorrect type: " << buffer[1] << std::endl;
+            return false;
+        }
+
+        if (buffer[2] != 0x01) {
+            std::cout << "incorrect version: " << buffer[2] << std::endl;
+            return false;
+        }
+
+        if (buffer[3] != bytes_received) {
+            std::cout << "incorrect size: " << bytes_received
+            << " with expected length: " << buffer[3] << std::endl;
+            return false;
+        }
+
+        switch (buffer[4]) {
+            case 1:
+                std::cout << "Unexpected request." << std::endl;
+                return false;
+            case 2:
+                std::cout << "Join request accepted!" << std::endl;
+                pseudo.resize(16, ' ');
+                for (int i=0;i<16;i++) {
+                    pseudo[i] = static_cast<char>(buffer[5+i]);
+                }
+                this->seed = *reinterpret_cast<uint32_t*>(buffer[21]);
+                status = 2;
+                return true;
+            case 3:
+                std::cout << "Join request refused : server full" << std::endl;
+                return false;
+            case 4:
+                std::cout << "Join request refused : pseudo already taken" << std::endl;
+                return false;
+            case 5: 
+                std::cout << "Join request refused : unspecified reasons" << std::endl;
+                return false;
+            default:
+                return false;
+        }
     }
 }
 
-void OnlinePlayer::handle_received_packets(ENetPacket* packet) {
-    uint8_t* data = static_cast<uint8_t*>(packet->data);
+void OnlinePlayer::handle_received_packets() {
+    receiveThread = std::thread([this]() {
+        socklen_t len;
+        int n;
+        len = sizeof(servaddr);
+        n = recv(gamesock_fd, buffer, sizeof(buffer) - 1, 0);
 
-    if (data[0] != 0xD4) {
-        std::cout << "incorrect head: " << data[0] << std::endl;
-        return;
-    }
-
-    if (data[1] == 0x04) { // si c'est un paquet classique
-        if (data[2] != 0x01) {
-            std::cout << "incorrect version: " << data[2] << std::endl;
-            return;
+        if (n < 0) {
+            std::cerr << "Receive failed\n";
         }
 
-        if (data[3] != packet->dataLength-1) {
-            std::cout << "incorrect size: " 
-            << packet->dataLength-1 
-            << " with expected length: " << data[3] << std::endl;
-            return;
-        }
+        uint8_t buffer[1024];
         
-        // simple no rollback for now
-        this->set_score(*reinterpret_cast<uint32_t*>(data[8]));
-        this->set_level(data[12]);
-        for (int i=0;i<this->grid.get_dimensions();i++) {
-            this->grid.cells[i] = data[13+i];
-        }
-    } else if (data[1] == 0x05) { // si on se prend une ligne
-        if (data[2] != 0x01) {
-            std::cout << "incorrect version: " << data[2] << std::endl;
+        if (buffer[0] != 0xD4) {
+            std::cout << "incorrect head: " << buffer[0] << std::endl;
             return;
         }
 
-        if (data[3] != packet->dataLength-1) {
-            std::cout << "incorrect size: " 
-            << packet->dataLength-1 
-            << " with expected length: " << data[3] << std::endl;
+        if (buffer[2] != 0x01) {
+            std::cout << "incorrect version: " << buffer[2] << std::endl;
             return;
         }
-        
-        int malus = data[8];
-        std::string pseudo_adversaire;
-        pseudo_adversaire.resize(16, ' ');
-        for (int i=0;i<16;i++) {
-            pseudo_adversaire[i] = static_cast<char>(data[5+i]);
+
+        if (buffer[3] != n) {
+            std::cout << "incorrect size: " << n
+            << " with expected length: " << buffer[3] << std::endl;
+            return;
         }
 
-        // TODO : ON AJOUTE LA LIGNE PAR LE BAS DE LA PART DE PSEUDO_ADVERSAIRE
-    }
+        switch (buffer[1]) {
+            case 0:
+                std::cout << "Received game broadcast request packet, ignoring"
+                << std::endl;
+                break;
 
+            case 1:
+                std::cout << "Received game broadcast packet, ignoring" 
+                << std::endl;
+                break;
+            
+            case 2:
+                // game join / joined
+                break;
+            
+            case 3:
+                std::cout << "Received client->server packet, ignoring" 
+                << std::endl;
+                break;
+            
+            case 4:
+                // classique server->client
+                handle_game_packet(buffer);
+                break;
 
-    if (data[1] != 0x04) {
-        std::cout << "incorrect type: " << data[1] << std::endl;
-        return;
-    }
+            case 5:
+                // server -> client je me prends une ligne
+                handle_line_packet(buffer);
+                break;
 
-    
+            case 6:
+                // game start
+                handle_start_packet(buffer);
+                break;
+
+            case 7:
+                // game end
+                handle_end_packet(buffer);
+                break;
+
+            default:
+                break;
+        }
+    }); 
 }
 
 void OnlinePlayer::send_packet(int input, int malus) {
     uint8_t* buffer_data = generate_game_packet(input, malus);
 
-    ENetPacket* packet = enet_packet_create(buffer_data, buffer_data[3]+1, 
-                                            ENET_PACKET_FLAG_RELIABLE);
+    ssize_t bytes_sent = send(gamesock_fd, buffer_data, buffer_data[3], 0);
 
-    enet_peer_send(server, 0, packet);
+    if (bytes_sent < 0) { 
+        perror("sent game packet.");
+    }
 }
 
 uint8_t* OnlinePlayer::generate_game_packet(int input, int malus) {
@@ -390,41 +406,59 @@ uint8_t* OnlinePlayer::generate_game_packet(int input, int malus) {
     return buffer_data; 
 }
 
-bool OnlinePlayer::handle_start_packet() { // returns true if game is started
-    ENetEvent event;
-    while (enet_host_service(this->client, &event, 1000) > 0) {
-        if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-            uint8_t* data = static_cast<uint8_t*>(event.packet->data);
-            if (data[0] != 0xD4) {
-                std::cout << "incorrect head: " << data[0] << std::endl;
-                return false;
-            }
-
-            if (data[1] != 0x06) {
-                std::cout << "incorrect type: " << data[1] << std::endl;
-                return false;
-            }
-
-            if (data[2] != 0x01) {
-                std::cout << "incorrect version: " << data[2] << std::endl;
-                return false;
-            }
-
-            if (data[3] != event.packet->dataLength-1) {
-                std::cout << "incorrect size: " 
-                << event.packet->dataLength-1 
-                << " with expected length: " << data[3] << std::endl;
-                return false;
-            }
-
-            if (data[4] == 1) { // game starts
-                return true;
-            } else {
-                std::cout << "Unexpected game start packet received." << std::endl;
-                return false;
-            }
+void OnlinePlayer::handle_start_packet(uint8_t *buffer) { 
+    if (buffer[4] == 1) {
+        if (status == 2) {
+            std::cout << "GAME STARTS !" << std::endl;
+            status = 3;
         } else {
-            return false;
+            std::cout << "uhh... not connected to server ?" << std::endl;
         }
+    } else {
+        std::cout << "Unexpected game start packet received." << std::endl;
+    }
+}
+
+// TODO
+void OnlinePlayer::handle_line_packet(uint8_t *buffer) {
+    int malus = buffer[8];
+    std::string pseudo_adversaire;
+    pseudo_adversaire.resize(16, ' ');
+    for (int i=0;i<16;i++) {
+        pseudo_adversaire[i] = static_cast<char>(buffer[5+i]);
+    }
+
+    // TODO : ON AJOUTE LA LIGNE PAR LE BAS DE LA PART DE 
+    // PSEUDO_ADVERSAIRE
+}
+
+// simple no rollback for now
+void OnlinePlayer::handle_game_packet(uint8_t *buffer) {
+    this->set_score(*reinterpret_cast<uint32_t*>(buffer[8]));
+    this->set_level(buffer[12]);
+    for (int i=0;i<this->grid.get_dimensions();i++) {
+        this->grid.cells[i] = buffer[13+i];
+    }
+}
+
+void OnlinePlayer::handle_end_packet(uint8_t *buffer) {
+    switch (buffer[4]) {
+        case 0:
+            std::cout << "staying alive!" << std::endl;
+            break;
+        case 1:
+            std::cout << "game over! you reached the top" << std::endl;
+            status = 4;
+            break;
+        case 2:
+            std::cout << "game over! but why ?" << std::endl;
+            status = 4;
+            break;
+        case 3:
+            std::cout << "YOU WON!!!" << std::endl;
+            status = 5;
+            break;
+        default:
+            break;
     }
 }

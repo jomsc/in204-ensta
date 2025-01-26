@@ -7,9 +7,11 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include <enet/enet.h>
 
 #include <cstdlib>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 class Player {
     private:
@@ -98,28 +100,32 @@ class Player {
 class OnlinePlayer : public Player {
     private:
         int network_mode;
-        ENetHost *client;
-        ENetPeer *server;
-        ENetAddress address;
-        ENetEvent event;
         bool connected;
-        char pseudo[16];
-        bool isGameStarted = false;
+        std::string pseudo;
+        int status = 0; // 0 : menu, 1 : discovery, 2 : connected, 3 : ingame
+        // 4 : lost, 5 : won
 
         int gamesock_fd;
         struct sockaddr_in servaddr;
-        struct sockaddr_in cliaddr;
         uint8_t buffer[1024];
 
         std::thread receiveThread;
 
     public:
-        void handle_received_packets(ENetPacket* packet);
+        
         void send_packet(int input, int malus);
         uint8_t* generate_game_packet(int input, int malus);
-        bool connect_to_server(GameInfo gameInfo, std::string pseudo);
-        bool handle_start_packet();
+        bool connect_to_server(GameInfo gameInfo);
+        
         GameDiscovery game_discovery = GameDiscovery();
+
+        void handle_received_packets();
+        void handle_line_packet(uint8_t *buffer);
+        void handle_game_packet(uint8_t *buffer);
+        void handle_start_packet(uint8_t *buffer);
+        void handle_end_packet(uint8_t *buffer);
+
+        void setPseudo (std::string thePseudo) { this->pseudo = thePseudo; }
 
         OnlinePlayer() {
             if ( (gamesock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
@@ -128,7 +134,6 @@ class OnlinePlayer : public Player {
             } 
             
             memset(&servaddr, 0, sizeof(servaddr));
-            memset(&cliaddr, 0, sizeof(cliaddr));
         }
 
         ~OnlinePlayer() {

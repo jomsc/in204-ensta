@@ -5,19 +5,6 @@ project(TETRIS_RIVALS)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include FetchContent for downloading ENet
-include(FetchContent)
-
-# Declare ENet dependency
-FetchContent_Declare(
-    enet
-    URL https://github.com/lsalzman/enet/archive/refs/tags/v1.3.18.tar.gz
-    URL_HASH SHA256=28603c895f9ed24a846478180ee72c7376b39b4bb1287b73877e5eae7d96b0dd
-)
-
-# Make ENet available
-FetchContent_MakeAvailable(enet)
-
 #Import de la SFML lib
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
@@ -38,7 +25,6 @@ target_link_libraries(${PROJECT_NAME}
         sfml-graphics 
         sfml-window 
         sfml-system
-        enet
 )
 
 # Include directories
@@ -47,10 +33,5 @@ target_include_directories(${PROJECT_NAME}
         include
         ${enet_SOURCE_DIR}/include
 )
-
-# Add platform specific requirements for ENet
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PRIVATE winmm ws2_32)
-endif()
 
 
