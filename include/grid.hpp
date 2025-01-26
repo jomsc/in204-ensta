@@ -26,9 +26,9 @@ class Grid {
         void spawn(int type);
         void update(bool* floor, bool* left_wall, bool* right_wall, bool* lock_in);
 
-       // bool wall_check();
-        //bool floor_check();
-        //void lock_piece();
+        bool impossible_kick(int x1,int y1,int orientation);
+        void wall_kick_clockwise(int type, int orientation);
+        void wall_kick_counterclockwise(int type, int orientation);
 
         std::vector<int> check_lines();
         void clear_line(int line);

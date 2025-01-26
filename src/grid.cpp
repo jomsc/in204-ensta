@@ -1,5 +1,6 @@
 #include "grid.hpp"
 #include <iterator>
+#include <cstdlib>
 
 void Grid::draw(sf::RenderWindow *window, int score, int level) {
     // on dessine la grille
@@ -122,7 +123,7 @@ void Grid::update(bool *floor, bool* left_wall, bool* right_wall, bool* lock_in)
                 {
                    if (pieces[v].shape[4*i+j] == 1) 
                     {
-                        if (pieces[v].x < 1 ||
+                        if (pieces[v].x+j < 1 ||
                         cells[(pieces[v].y+i)*numcols + pieces[v].x+j-1] > 0)
                         {
                             *left_wall=true;
@@ -176,55 +177,764 @@ void Grid::update(bool *floor, bool* left_wall, bool* right_wall, bool* lock_in)
     }
 }
 
-/*bool Grid::floor_check() {
-    // on vérifie si ce mouvement amene a ce que la piece soit immobilisée
-    for (int v=0;v<pieces.size();v++)
+bool Grid::impossible_kick(int x1,int y1,int sens)
+{
+    int vrai_sens;
+    if(sens==1)
     {
-        for (int i=0;i<4;i++) 
+        vrai_sens=0;
+    }
+    else
+    {
+        vrai_sens=1;
+    }
+
+    int y2=-y1;
+
+    std::vector<Piece> temp = pieces;
+    temp[0].rotate(vrai_sens);
+
+    for(int i=0;i<abs(x1);i++)
+    {
+        if(x1<0)
         {
-            for (int j=0;j<4;j++)
+            temp[0].move(0);
+        }
+        else
+        {
+            temp[0].move(1);
+        }
+    }
+
+    for(int i=0;i<abs(y2);i++)
+    {
+        if(y2<0)
+        {
+            temp[0].move(2);
+        }
+        else
+        {
+            temp[0].move(3);
+        }
+    }
+
+        for(int i=0;i<4;i++)
+        {
+            for(int j=0;j<4;j++)
             {
-                if (pieces[v].shape[4*i+j] == 1 && (this->cells[(pieces[v].y+i+2)*numcols + pieces[v].x+j] > 0
-                    || pieces[v].y+i+2 >= numrows)) //si une case en dessous de la pièce est occupée ou si la pièce a atteint
-                                                    //le bas de la grille
+                if(temp[0].shape[4*i+j]==1)
                 {
-                    return true;
-                }
-                    else
-                {
-                    return false;
+                    if(this->cells[(temp[0].y+i)*numcols+temp[0].x]>0||
+                      temp[0].x+j < 0 ||
+                      temp[0].x+j>=numcols)
+                    {
+                        return true;
+                    }
                 }
             }
+        }
+    return false;    
+}
+
+void Grid::wall_kick_clockwise(int type,int orientation)
+{
+    for(int v=0;v<pieces.size();v++)
+    {
+        switch(orientation)
+        {
+            case 0:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,0,1))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,-1,1))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else if(!impossible_kick(1,2,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case60;
+                    case 3:
+                        goto case60;
+                    case 4:
+                        goto case60;
+                    case 5:
+                        goto case60;
+                    case 6:
+                    case60:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,1,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,-2,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,-2,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
+            case 1:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(2,0,1))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,2,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else if(!impossible_kick(2,-1,1))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case61;
+                    case 3:
+                        goto case61;
+                    case 4:
+                        goto case61;
+                    case 5:
+                        goto case61;
+                    case 6:
+                    case61:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,-1,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,2,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else if(!impossible_kick(1,2,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
+            case 2:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(2,0,1))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(2,1,1))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,-2,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case62;
+                    case 3:
+                        goto case62;
+                    case 4:
+                        goto case62;
+                    case 5:
+                        goto case62;
+                    case 6:
+                    case62:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,1,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,-2,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else if(!impossible_kick(1,-2,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
+            case 3:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,0,1))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,-2,1))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,1,1))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case63;
+                    case 3:
+                        goto case63;
+                    case 4:
+                        goto case63;
+                    case 5:
+                        goto case63;
+                    case 6:
+                    case63:
+                        if(!impossible_kick(0,0,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,-1,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,2,1))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,2,1))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
         }
     }
 }
 
-void Grid::lock_piece(){
-    for (int v=0;v<pieces.size();v++)
-    {    
-        printf("ok1");
-        for (int k=0;k<4;k++) 
+void Grid::wall_kick_counterclockwise(int type,int orientation)
+{
+    for(int v=0;v<pieces.size();v++)
+    {
+        switch(orientation)
         {
-            printf("ok2");
-            for (int l=0;l<4;l++) 
-            {
-                printf("ok3");
-                if (pieces[v].shape[4*k+l] == 1)
+            case 0:
+                switch(type)
                 {
-                    printf("ok4");
-                    cells[(pieces[v].y+k)*numcols+pieces[v].x+l] = pieces[v].type+1;
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(2,0,3))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,2,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else if(!impossible_kick(2,-1,3))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case64;
+                    case 3:
+                        goto case64;
+                    case 4:
+                        goto case64;
+                    case 5:
+                        goto case64;
+                    case 6:
+                    case64:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,1,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,-2,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else if(!impossible_kick(1,-2,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
                 }
-            }
+            case 1:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(2,0,3))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(2,1,3))
+                        {
+                            pieces[v].x+= 2;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,-2,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case65;
+                    case 3:
+                        goto case65;
+                    case 4:
+                        goto case65;
+                    case 5:
+                        goto case65;
+                    case 6:
+                    case65:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,-1,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,2,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else if(!impossible_kick(1,2,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
+            case 2:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,0,3))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,-2,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,1,3))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case66;
+                    case 3:
+                        goto case66;
+                    case 4:
+                        goto case66;
+                    case 5:
+                        goto case66;
+                    case 6:
+                    case66:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,1,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= -1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,-2,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,-2,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
+            case 3:
+                switch(type)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,0,3))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(1,0,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-2,-1,3))
+                        {
+                            pieces[v].x+= -2;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else if(!impossible_kick(1,2,3))
+                        {
+                            pieces[v].x+= 1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    case 2:
+                        goto case67;
+                    case 3:
+                        goto case67;
+                    case 4:
+                        goto case67;
+                    case 5:
+                        goto case67;
+                    case 6:
+                    case67:
+                        if(!impossible_kick(0,0,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,0,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 0;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,-1,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= 1;
+                            return;
+                        }
+                        else if(!impossible_kick(0,2,3))
+                        {
+                            pieces[v].x+= 0;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else if(!impossible_kick(-1,2,3))
+                        {
+                            pieces[v].x+= -1;
+                            pieces[v].y+= -2;
+                            return;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                }
         }
-        for(int i=0;i<4;i++)
-        {
-        pieces.erase(pieces.begin()+i);
-        printf("ok5");
-        }
-        return;
     }
-}*/
-
+}
 
 /*On vérifie si un ligne est pleine*/
 

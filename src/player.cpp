@@ -112,6 +112,8 @@ void Player::update() {
     {
         if (gravity_clock.getElapsedTime().asSeconds() > speed) 
         {
+            printf("%B\n",left_wall);
+            printf("%d\n",grid.pieces[0].x);
             if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
             {
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
@@ -148,18 +150,22 @@ void Player::update() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && 
             rotate_clock.getElapsedTime().asMilliseconds() > 200) 
         {
-        grid.pieces[0].rotate(0);
+        grid.wall_kick_clockwise(grid.pieces[0].type, grid.pieces[0].orientation);
         left_wall=false;
         right_wall=false;
+        floor=false;
+        grid.pieces[0].rotate(0);
         grid.update(&floor,&left_wall,&right_wall,&lock_in);
         rotate_clock.restart();
         }   
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && 
             rotate_clock.getElapsedTime().asMilliseconds() > 200)
         {
-        grid.pieces[0].rotate(1);
+        grid.wall_kick_counterclockwise(grid.pieces[0].type, grid.pieces[0].orientation);
         left_wall=false;
         right_wall=false;
+        floor = false;
+        grid.pieces[0].rotate(1);
         grid.update(&floor,&left_wall,&right_wall,&lock_in);
         rotate_clock.restart();
         }
