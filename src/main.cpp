@@ -5,9 +5,7 @@
 #include <enet/enet.h>  
 #include <chrono>
 
-
-
-int main()
+int main(int argc, char **argv) 
 {
 
     sf::VideoMode ecran = sf::VideoMode::getDesktopMode();
@@ -60,8 +58,42 @@ int main()
 
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
                                         25565, 2);
-    bool host = true; 
+    
+    if (argc!=2) {
+        std::cout << "Usage : ./TETRIS_RIVALS --<mode>" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    bool host = false; 
     bool discovery = false;
+
+    std::cout << "argv : " << argv[1] << std::endl;
+
+
+    if (strcmp(argv[1], "--client") == 0) {
+        host = false;
+        discovery = true;
+        std::cout << "true true" << std::endl;
+    }
+
+    if (strcmp(argv[1], "--server") == 0) {
+        host = true;
+        discovery = false;
+        std::cout << "server mode" << std::endl;
+    }
+    
+    
+
+    if (strcmp(argv[1], "--host") == 0) {
+        host = true;
+        discovery = true;
+    }
+
+    if (strcmp(argv[1], "--classic") == 0) {
+        host = false;
+        discovery = false;
+        status = 1;
+    }
 
     if (host) {
         game_server.create_game();
@@ -112,8 +144,6 @@ int main()
                             status = 3;
                         }
                     }
-                } else {
-                    std::cout << "server mode" << std::endl;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 break;
