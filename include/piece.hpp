@@ -133,10 +133,15 @@ class Piece {
                 case 2: //bas
                     this->y+=1;
                     break;
+                case 3: //haut pour les wall_kick
+                    this->y-=1;
+                    break;
                 case -1:
                     break;
             }
         }
 };
+
+
 
 #endif
