@@ -54,7 +54,7 @@ class Grid {
 
             pieces = std::vector<Piece>();
 
-            arial.loadFromFile("./assets/fonts/arial.ttf");
+            arial.loadFromFile("../src/assets/fonts/arial.ttf");
         }
 
         ~Grid() {}

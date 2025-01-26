@@ -5,20 +5,46 @@
 #include <enet/enet.h>  
 #include <chrono>
 
+#define VIDEO_WIDTH 1600
+#define VIDEO_HEIGHT 900
+
+
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 1000), "Tetris!");
+    sf::RenderWindow window(sf::VideoMode(VIDEO_WIDTH, VIDEO_HEIGHT), "Tetris!");
     srand(time(0));
 
     sf::Clock clock;
 
     Player player = Player();
     
-    
+    sf::Texture bgVideoTexture;
+    sf::Sprite bgVideoSprite;
+    sf::Clock bgClock;
+    bgClock.restart();
+    int vidX[107];
+    int vidY[107];
+    float scaleX = VIDEO_WIDTH/1920.0;
+    float scaleY = VIDEO_HEIGHT/1080.0;
+    std::cout << scaleX<<std::endl;
 
-    sf::RectangleShape bg(sf::Vector2f(800, 1000));
-    sf::Color bg_color = sf::Color(0, 0, 50);
-    bg.setFillColor(bg_color);
+    for (int i=0;i<13;i++){
+        for (int j=0;j<8;j++) {
+            vidX[8*i+j] = 1080*i;
+            vidY[8*i+j] = 1920*j;
+        }
+    }
+
+    for (int j=0;j<3;j++) {
+        vidX[8*13+j] = 1080*13;
+        vidY[8*13+j] = 1920*j;
+    }
+
+    if (!bgVideoTexture.loadFromFile("../src/assets/background_vid/out.jpeg")) {
+        std::cout << "Error loading background video!" << std::endl;  
+    }
+    bgVideoSprite.setTexture(bgVideoTexture);
+    bgVideoSprite.setScale(sf::Vector2f(scaleX, scaleY));
 
     OnlinePlayer online_player = OnlinePlayer();
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
@@ -58,8 +84,15 @@ int main()
         
         player.update();
 
+        int bgFrameCounter = (int)((bgClock.getElapsedTime().asMilliseconds()%3566)/34);
+        sf::IntRect srcRect = sf::IntRect(vidY[bgFrameCounter+1], 
+                                          vidX[bgFrameCounter+1],
+                                          1920,
+                                          1080);
+        bgVideoSprite.setTextureRect(srcRect);
+        
         window.clear();
-        window.draw(bg);
+        window.draw(bgVideoSprite);
         player.display(&window);
         window.display();
         
