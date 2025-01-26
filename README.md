@@ -29,12 +29,12 @@ ensuite c'est bon :)
 
 ## Partie Simon
 - [ ] Finir le jeu solo :
-  - [ ] mettre le score
-  - [ ] rotation antihoraire
-  - [ ] afficher les 3 prochaines pièces
-  - [ ] améliorer la gestion des inputs
+  - [x] mettre le score
+  - [x] rotation antihoraire
+  - [x] afficher les 3 prochaines pièces
+  - [x] améliorer la gestion des inputs
   - [ ] textures
-  - [ ] augmentation du niveau
+  - [x] augmentation du niveau
   - [ ] condition de perte / ecran de défaite
 
 
