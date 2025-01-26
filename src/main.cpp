@@ -5,6 +5,10 @@
 #include <enet/enet.h>  
 #include <chrono>
 
+#define VIDEO_WIDTH 1600
+#define VIDEO_HEIGHT 900
+
+
 int main(int argc, char **argv) 
 {
 
@@ -114,7 +118,7 @@ int main(int argc, char **argv)
             case 1:
                 player.update();
                 window.clear();
-                window.draw(bg);
+                window.draw(bgVideoSprite);
                 player.display(&window);
                 window.display();
                 break;
@@ -163,6 +167,19 @@ int main(int argc, char **argv)
                 window.close();
         }
         
+        player.update();
+
+        int bgFrameCounter = (int)((bgClock.getElapsedTime().asMilliseconds()%3566)/34);
+        sf::IntRect srcRect = sf::IntRect(vidY[bgFrameCounter+1], 
+                                          vidX[bgFrameCounter+1],
+                                          1920,
+                                          1080);
+        bgVideoSprite.setTextureRect(srcRect);
+        
+        window.clear();
+        window.draw(bgVideoSprite);
+        player.display(&window);
+        window.display();
         
         sf::Time elapsed = clock.getElapsedTime();
         //std::cout << "Render time : " << elapsed.asMilliseconds() << " ms" << std::endl;
