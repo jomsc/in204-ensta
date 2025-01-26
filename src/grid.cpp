@@ -2,7 +2,7 @@
 #include <iterator>
 #include <cstdlib>
 
-void Grid::draw(sf::RenderWindow *window, int score, int level) {
+void Grid::draw(sf::RenderWindow *window, int score, int level, int buffer[3]) {
     // on dessine la grille
    
     // on dessine les lignes horizontales
@@ -70,6 +70,13 @@ void Grid::draw(sf::RenderWindow *window, int score, int level) {
     level_text.setPosition(numcols*(size_cell+line_thickness)
                            +line_thickness+x_offset+10, 2*y_offset+30);
     window->draw(level_text);
+
+    //on dessine les 3 pièces suivantes
+    for(int k=0;k<3;k++)
+    {
+        Piece waiting_piece(0,0,0,buffer[k],1);
+        draw_waiting_piece(window, waiting_piece,k);
+    }    
 }
 
 void Grid::draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color) {
@@ -78,6 +85,23 @@ void Grid::draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color)
         y_offset+y*(size_cell+line_thickness)+line_thickness);
     cell.setFillColor(color);
     window->draw(cell);
+}
+
+void Grid::draw_waiting_piece(sf::RenderWindow *window, Piece waiting_piece,int queue_pos) {
+    sf::RectangleShape waiting_cell(sf::Vector2f(size_waiting_cell, size_waiting_cell));
+    for(int i=0;i<4;i++)
+    {
+        for(int j=0; j<4; j++)
+        {
+            waiting_cell.setPosition(x_offset+numcols*(size_cell+line_thickness)+10+j*size_waiting_cell, 
+                y_offset+100+queue_pos*100+i*size_waiting_cell);
+            waiting_cell.setFillColor(waiting_piece.color);
+            if(waiting_piece.shape[4*i+j]==1)
+            {
+                window->draw(waiting_cell);   
+            }
+        }
+    }
 }
 
 void Grid::spawn(int type) {

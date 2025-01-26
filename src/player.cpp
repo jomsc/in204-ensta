@@ -2,7 +2,7 @@
 #include <iostream>
 
 void Player::display(sf::RenderWindow *window) {
-    grid.draw(window, this->score, this->level);
+    grid.draw(window, this->score, this->level,this->buffer);
 }
 
 void Player::update_next_pieces(){

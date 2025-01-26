@@ -21,14 +21,13 @@ class Grid {
         std::vector<int> cells; 
         // grounded piece : type+1, falling piece : 0, empty : -1
         std::vector<Piece> pieces; // pieces qui tombent
-
-        void draw(sf::RenderWindow *window, int score, int level);
+        
+        void draw(sf::RenderWindow *window, int score, int level, int buffer[3]);
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
         void update(bool* floor, bool* left_wall, bool* right_wall, bool* lock_in);
         void top_out();
-        void draw_in_waiting_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
-        void draw_next_pieces(int buffer[3]);
+        void draw_waiting_piece(sf::RenderWindow *window, Piece waiting_piece,int queue_pos);
 
         bool impossible_kick(int x1,int y1,int orientation);
         void wall_kick_clockwise(int type, int orientation);
