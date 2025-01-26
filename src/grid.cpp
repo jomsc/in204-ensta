@@ -116,10 +116,6 @@ void Grid::spawn(int type) {
     }
 }
 
-void Grid::top_out()
-{
-
-}
 
 void Grid::update(bool *floor, bool* left_wall, bool* right_wall, bool* lock_in) 
 {
