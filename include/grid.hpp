@@ -25,6 +25,7 @@ class Grid {
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
         void spawn(int type);
         void update(bool* floor, bool* left_wall, bool* right_wall, bool* lock_in);
+        void top_out();
 
         bool impossible_kick(int x1,int y1,int orientation);
         void wall_kick_clockwise(int type, int orientation);

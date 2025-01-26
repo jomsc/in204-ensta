@@ -10,7 +10,7 @@ void Grid::draw(sf::RenderWindow *window, int score, int level) {
         int size = numcols*size_cell+(numcols)*line_thickness;
         sf::RectangleShape ligne(sf::Vector2f(size, line_thickness));
         ligne.setPosition(x_offset, y_offset+i*(size_cell+line_thickness));
-        ligne.setFillColor(sf::Color::White);
+        ligne.setFillColor(sf::Color::Black);
         window->draw(ligne);
     }
 
@@ -19,7 +19,7 @@ void Grid::draw(sf::RenderWindow *window, int score, int level) {
         int size = numrows*size_cell+(numrows+1)*line_thickness;
         sf::RectangleShape ligne(sf::Vector2f(size, line_thickness));
         ligne.setPosition(x_offset+i*(size_cell+line_thickness), y_offset);
-        ligne.setFillColor(sf::Color::White);
+        ligne.setFillColor(sf::Color::Black);
         ligne.rotate(90);
         window->draw(ligne);
     }
@@ -90,6 +90,11 @@ void Grid::spawn(int type) {
             }
         }
     }
+}
+
+void Grid::top_out()
+{
+
 }
 
 void Grid::update(bool *floor, bool* left_wall, bool* right_wall, bool* lock_in) 
