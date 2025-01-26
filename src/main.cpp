@@ -107,6 +107,7 @@ int main(int argc, char **argv)
 
     while (window.isOpen()) {
         clock.restart();
+        window.clear();
 
         switch (status) {
 
@@ -117,10 +118,15 @@ int main(int argc, char **argv)
 
             case 1:
                 player.update();
-                window.clear();
+
+                int bgFrameCounter = (int)((bgClock.getElapsedTime().asMilliseconds()%3566)/34);
+                sf::IntRect srcRect = sf::IntRect(vidY[bgFrameCounter+1], 
+                                                vidX[bgFrameCounter+1],
+                                                1920,
+                                                1080);
+                bgVideoSprite.setTextureRect(srcRect);
                 window.draw(bgVideoSprite);
                 player.display(&window);
-                window.display();
                 break;
 
             case 2:
@@ -166,19 +172,7 @@ int main(int argc, char **argv)
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        
-        player.update();
-
-        int bgFrameCounter = (int)((bgClock.getElapsedTime().asMilliseconds()%3566)/34);
-        sf::IntRect srcRect = sf::IntRect(vidY[bgFrameCounter+1], 
-                                          vidX[bgFrameCounter+1],
-                                          1920,
-                                          1080);
-        bgVideoSprite.setTextureRect(srcRect);
-        
-        window.clear();
-        window.draw(bgVideoSprite);
-        player.display(&window);
+    
         window.display();
         
         sf::Time elapsed = clock.getElapsedTime();
