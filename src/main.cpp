@@ -5,18 +5,28 @@
 #include <enet/enet.h>  
 #include <chrono>
 
-#define VIDEO_WIDTH 1600
-#define VIDEO_HEIGHT 900
 
 
 int main()
 {
+
+    sf::VideoMode ecran = sf::VideoMode::getDesktopMode();
+    int VIDEO_WIDTH= ecran.width;
+    int VIDEO_HEIGHT= ecran.height;
+
     sf::RenderWindow window(sf::VideoMode(VIDEO_WIDTH, VIDEO_HEIGHT), "Tetris!");
     srand(time(0));
 
     sf::Clock clock;
 
     Player player = Player();
+
+
+    player.grid.size_cell=(VIDEO_HEIGHT-2*player.grid.y_offset
+        -player.grid.line_thickness*(player.grid.numrows+1))/player.grid.numrows;
+    player.grid.x_offset= (VIDEO_WIDTH-player.grid.numcols*player.grid.size_cell
+        -(player.grid.numcols+1)*player.grid.line_thickness)/2;
+    player.grid.size_waiting_cell = 0.625*player.grid.size_cell;
     
     sf::Texture bgVideoTexture;
     sf::Sprite bgVideoSprite;

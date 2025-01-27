@@ -53,7 +53,7 @@ void Player::update() {
     int input_rota = -1;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)&&
-            movement_clock.getElapsedTime().asMilliseconds() > 155)
+            movement_clock.getElapsedTime().asMilliseconds() > 155)  //déplacement vers la droite
         {
             if(!left_wall)
             {
@@ -70,7 +70,7 @@ void Player::update() {
             }
         } 
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)&&
-            movement_clock.getElapsedTime().asMilliseconds() > 155) 
+            movement_clock.getElapsedTime().asMilliseconds() > 155) //déplacement vers la gauche
         {
         if(!right_wall)
             {
@@ -87,43 +87,45 @@ void Player::update() {
             }
         } 
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)&&
-            movement_clock.getElapsedTime().asMilliseconds() > 155&&
-            spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) 
+            down_clock.getElapsedTime().asMilliseconds() > 155&&
+            spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) //déplacement vers le bas
         {
             if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
             {
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
-                movement_clock.restart();
+                down_clock.restart();
             }
             else if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()>150)
             {
                 lock_in=true;
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
-                movement_clock.restart();
+                down_clock.restart();
             }
              else
             {
                 floor=false;
                 grid.pieces[0].move(2);
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
-                movement_clock.restart();
+                down_clock.restart();
             }
         } 
     else 
     {
         if (gravity_clock.getElapsedTime().asSeconds() > speed&&
-        spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) 
+        spawn_wait_clock.getElapsedTime().asMilliseconds() > 400) //déplacement automatique vers le bas
         {
             if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()<=150)
             {
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
                 gravity_clock.restart();
+                down_clock.restart();
             }
             else if(floor && soft_lock_clock.getElapsedTime().asMilliseconds()>150)
             {
                 lock_in=true;
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
                 gravity_clock.restart();
+                down_clock.restart();
             }    
             else
             {
@@ -131,6 +133,7 @@ void Player::update() {
                 grid.pieces[0].move(2);
                 grid.update(&floor,&left_wall,&right_wall,&lock_in);
                 gravity_clock.restart();
+                down_clock.restart();
             }
         }
     }

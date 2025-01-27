@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 class Grid {
-    private:
+    public:
         int x_offset;
         int y_offset;
         int numrows;
@@ -16,8 +16,6 @@ class Grid {
         sf::Font arial;
 
         
-
-    public:
         std::vector<int> cells; 
         // grounded piece : type+1, falling piece : 0, empty : -1
         std::vector<Piece> pieces; // pieces qui tombent
