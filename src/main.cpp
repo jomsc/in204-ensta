@@ -5,9 +5,6 @@
 #include <enet/enet.h>  
 #include <chrono>
 
-#define VIDEO_WIDTH 1600
-#define VIDEO_HEIGHT 900
-
 
 int main(int argc, char **argv) 
 {
@@ -64,45 +61,54 @@ int main(int argc, char **argv)
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
                                         25565, 0);
     
-    if (argc!=2 && argc!=3) {
-        std::cout << "Usage : ./TETRIS_RIVALS --<mode>" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    
 
     bool host = false; 
     bool discovery = false;
 
-    if (strcmp(argv[1], "--client") == 0) {
-        host = false;
-        discovery = true;
-    }
+    // parsing the args
+    if (argc > 1) {
+        if (argc!=2 && argc!=3) {
+            std::cout << "Usage : ./TETRIS_RIVALS --<mode>" << std::endl;
+            exit(EXIT_FAILURE);
+        }
 
-    if (strcmp(argv[1], "--server") == 0) {
-        host = true;
-        discovery = false;
-        std::cout << "STARTING ON SERVER MODE" << std::endl;
-    }
-    
-    
+        if (strcmp(argv[1], "--client") == 0) {
+            host = false;
+            discovery = true;
+        }
 
-    if (strcmp(argv[1], "--host") == 0) {
-        host = true;
-        discovery = true;
-    }
+        if (strcmp(argv[1], "--server") == 0) {
+            host = true;
+            discovery = false;
+            std::cout << "STARTING ON SERVER MODE" << std::endl;
+        }
+        
+        
 
-    if (strcmp(argv[1], "--classic") == 0) {
-        host = false;
-        discovery = false;
+        if (strcmp(argv[1], "--host") == 0) {
+            host = true;
+            discovery = true;
+        }
+
+        if (strcmp(argv[1], "--classic") == 0) {
+            host = false;
+            discovery = false;
+            status = 1;
+        }
+
+        if (strcmp(argv[2], "--debug") == 0) { 
+            debug_headless = 1;
+            window.close(); 
+            std::cout << "HEADLESS MODE ACTIVE" << std::endl;
+            std::cout << std::endl;
+        }
+
+    } else {
         status = 1;
     }
 
-    if (strcmp(argv[2], "--debug") == 0) { 
-        debug_headless = 1;
-        window.close(); 
-        std::cout << "HEADLESS MODE ACTIVE" << std::endl;
-        std::cout << std::endl;
-    }
-
+    
 
     if (host) {
         game_server.create_game();
