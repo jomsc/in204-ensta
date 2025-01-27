@@ -10,6 +10,7 @@ bool GameDiscovery::initializeHost(const std::string& gameName,
     gameInfo.gamePort = gamePort;
     gameInfo.maxPlayers = maxPlayers;
     gameInfo.currentPlayers = 0;
+    numberOfPlayers = 0;
     
     return true;
 }
@@ -41,9 +42,6 @@ void GameDiscovery::startBroadcasting() {
         sockaddr_in fromAddr;
         socklen_t fromAddrLen = sizeof(fromAddr);
         fromAddr.sin_family = AF_INET;
-
-
-        gameInfo.currentPlayers = numberOfPlayers;
         
         // creation du message de broadcast
         uint8_t buffer_data[105]; // voir netcode.md pour les specs
@@ -55,7 +53,7 @@ void GameDiscovery::startBroadcasting() {
             buffer_data[4+i] = static_cast<uint8_t>(gameInfo.gameName[i]);
         } // port
         *reinterpret_cast<uint16_t*>(buffer_data+36) = gameInfo.gamePort;
-        buffer_data[38] = gameInfo.currentPlayers; // nb of players
+        buffer_data[38] = numberOfPlayers; // nb of players
         buffer_data[39] = gameInfo.maxPlayers; // max nb of players
         buffer_data[40] = 0x01; // is joinable
         for (int i=0;i<64;i++) { // motd
@@ -63,10 +61,15 @@ void GameDiscovery::startBroadcasting() {
         }
 
         while (isRunning) {
-            buffer_data[38] = gameInfo.currentPlayers;
+            
+             
 
             ssize_t received = recvfrom(discosock_fd, buffer, sizeof(buffer), 0,
                                   (sockaddr*)&fromAddr, &fromAddrLen);
+
+            gameInfo.currentPlayers = numberOfPlayers;
+            buffer_data[38] = numberOfPlayers;
+            std::cout << "Number of Players : " << std::to_string(numberOfPlayers) << std::endl;
 
             if (buffer[0] == 0xD4 &&
                 buffer[1] == 0 &&
@@ -90,7 +93,7 @@ void GameDiscovery::startBroadcasting() {
             }
 
             std::this_thread::sleep_for(
-                std::chrono::milliseconds(BROADCAST_INTERVAL_MS)
+                std::chrono::milliseconds(100)
             );
         }
     });

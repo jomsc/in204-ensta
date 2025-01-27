@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     bgVideoSprite.setScale(sf::Vector2f(scaleX, scaleY));
 
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
-                                        25565, 2);
+                                        25565, 0);
     
     if (argc!=2 && argc!=3) {
         std::cout << "Usage : ./TETRIS_RIVALS --<mode>" << std::endl;
@@ -166,6 +166,7 @@ int main(int argc, char **argv)
                         success = online_player.connect_to_server(games[game_chosen]);
                         if (success) {
                             status = 3;
+                            std::cout << "status : " << status << std::endl;
                         }
                     }
                 }
@@ -173,6 +174,7 @@ int main(int argc, char **argv)
                 break;
             
             case 3:
+                std::cout << "JE VEUX JOUER NSM" << std::endl;
                 break;
             
             default:

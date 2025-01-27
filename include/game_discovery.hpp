@@ -34,7 +34,7 @@ private:
     int discosock_fd;
 
 public:
-    std::atomic<u_int8_t> numberOfPlayers;
+    std::atomic<u_int8_t> numberOfPlayers = 0;
     const int BROADCAST_INTERVAL_MS = 1000;
     GameDiscovery() : isRunning(false) {}
     
