@@ -25,24 +25,26 @@ void GameDiscovery::startBroadcasting() {
             return 1;
         }
 
-        int reuse = 1;
-        if (setsockopt(discosock_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
-            perror("setsockopt");
-            close(discosock_fd);
-            return 1;
-        }
-
         sockaddr_in serverAddr;
         memset(&serverAddr, 0, sizeof(serverAddr));
         serverAddr.sin_family = AF_INET;
         serverAddr.sin_port = htons(DISCOVERY_PORT);
         serverAddr.sin_addr.s_addr = INADDR_ANY;
 
+        if (bind(discosock_fd, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+            perror("Bind failed");
+            close(discosock_fd);
+            exit(EXIT_FAILURE);
+        }
+
         uint8_t buffer[1024];
         sockaddr_in fromAddr;
         socklen_t fromAddrLen = sizeof(fromAddr);
+        fromAddr.sin_family = AF_INET;
 
 
+        gameInfo.currentPlayers = numberOfPlayers;
+        
         // creation du message de broadcast
         uint8_t buffer_data[105]; // voir netcode.md pour les specs
         buffer_data[0] = 0xD4; // tete
@@ -80,8 +82,11 @@ void GameDiscovery::startBroadcasting() {
                     close(discosock_fd);
                     return 1;
                 }
-                
-                std::cout << "Broadcasted server presence." << std::endl;
+
+                char clientIP[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &fromAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
+                std::cout << "Broadcasted server presence to client at " << 
+                clientIP << std::endl;
             }
 
             std::this_thread::sleep_for(
@@ -99,8 +104,8 @@ void GameDiscovery::stopBroadcasting() {
     close(discosock_fd);
 }
 
-void GameDiscovery::updatePlayerCount(int currentPlayers) {
-    gameInfo.currentPlayers = currentPlayers;
+void GameDiscovery::updatePlayerCount(u_int8_t currentPlayers) {
+    numberOfPlayers = currentPlayers;
 }
 
 std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameType) {
@@ -123,8 +128,8 @@ std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameTy
     memset(&broadcastAddr, 0, sizeof(broadcastAddr));
     broadcastAddr.sin_family = AF_INET;
     broadcastAddr.sin_port = htons(DISCOVERY_PORT);
-    //broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255");
-    broadcastAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    //broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255"); // broadcast
+    broadcastAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // localhost
 
 
     uint8_t buffer[1024];
@@ -184,10 +189,10 @@ std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameTy
             game.gameName[i] = static_cast<char>(buffer[4+i]);
         }
 
-        char serverIP[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &fromAddr.sin_addr, serverIP, INET_ADDRSTRLEN);
+        inet_ntop(AF_INET, &fromAddr.sin_addr, game.serverIP, INET_ADDRSTRLEN);
 
-        game.gamePort = (buffer[36] << 8) + buffer[37];
+
+        game.gamePort = (buffer[37] << 8) + buffer[36];
         game.currentPlayers = buffer[38];
         game.maxPlayers = buffer[39];
         game.isJoinable = buffer[40];
@@ -196,7 +201,17 @@ std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameTy
         for (int i=0;i<64;i++) {
             game.motd[i] = static_cast<char>(buffer[41+i]);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+        bool alreadyFound = false;
+        for (int i=0;i<discoveredGames.size();i++) {
+            if (discoveredGames[i].gameName == game.gameName) {
+                alreadyFound = true;
+            }
+        }
+
+        if (!alreadyFound) { discoveredGames.push_back(game); }
     }
     
     close(discosock_fd);

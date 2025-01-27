@@ -15,16 +15,8 @@
 - [ ] musique
 
 ## Partie Joseph
-- [ ] netcode p2p :
-  - [x] modifier la classe grid etc. 
-  - [ ] menu pour choisir mode classique/reseau et host/join
-
-On utilise ENet 1.3.18
-avant la première compilation : 
-aller dans le dossier enet/ et exécuter ```./configure && make && make install``` puis ```sudo ldconfig /usr/local/lib```
-
-ensuite c'est bon :)
-
+- rendre atomic le nombre de joueurs
+- pourquoi le serveur crash quand un joueur en trop cherche a rejoindre ou que le pseudo est identique
 [state-synchro](https://gafferongames.com/post/state_synchronization/)
 
 ## Partie Simon

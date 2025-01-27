@@ -18,7 +18,7 @@ struct GameInfo {
     uint16_t gamePort;
     u_int8_t maxPlayers;
     u_int8_t currentPlayers;
-    char* serverIP; 
+    char serverIP[INET_ADDRSTRLEN]; 
     uint8_t isJoinable;
 };
 
@@ -34,6 +34,7 @@ private:
     int discosock_fd;
 
 public:
+    std::atomic<u_int8_t> numberOfPlayers;
     const int BROADCAST_INTERVAL_MS = 1000;
     GameDiscovery() : isRunning(false) {}
     
@@ -42,7 +43,7 @@ public:
     
     void startBroadcasting();
     void stopBroadcasting();
-    void updatePlayerCount(int currentPlayers);
+    void updatePlayerCount(u_int8_t currentPlayers);
     
     std::vector<GameInfo> discoverGames(int timeoutMs = 2000, 
                                         uint8_t gameType = 1);    
