@@ -108,6 +108,34 @@ int main(int argc, char **argv)
     Menu mainMenu = Menu(mainMenuInfos, mainMenuTexture, 
                          mainMenuColorArray, mainMenuHoverColorArray);
 
+
+    // HOST MENU
+    std::vector<std::vector<int>> hostMenuInfos;
+    sf::Texture hostMenuTexture;
+    std::vector<sf::Color> hostMenuColorArray;
+    std::vector <sf::Color> hostMenuHoverColorArray;
+
+    std::string hostMenuPath = exeDir + "/assets/menus/menu_host.png";
+    if (!hostMenuTexture.loadFromFile(hostMenuPath)) {
+        std::cout << "Error loading host menu texture!" << std::endl;  
+    }
+    
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 50, 1000, 500, 0, 0, -1 });
+    mainMenuColorArray.emplace_back(sf::Color::White);
+    mainMenuHoverColorArray.emplace_back(sf::Color::White);
+
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 1050, 871, 65, 0, 510, 5 });
+    mainMenuColorArray.emplace_back(sf::Color::Yellow);
+    mainMenuHoverColorArray.emplace_back(sf::Color::Red);
+
+    Menu hostMenu = Menu(hostMenuInfos, hostMenuTexture, 
+                         hostMenuColorArray, hostMenuHoverColorArray);
+
+
+
+
+
+
     int mouseX = 0;
     int mouseY = 0;
     bool isClicking = 0;
@@ -206,6 +234,18 @@ int main(int argc, char **argv)
                 break;
 
             case 2:
+                bgVideoSprite.setTextureRect(srcRect);
+                window.draw(bgVideoSprite);
+                hostMenu.display(&window, mouseX, mouseY);
+                dest = mainMenu.dest(mouseX, mouseY, isClicking);
+                if (dest != -1) {
+                    if (dest == -2) { window.close(); }
+                    else { 
+                        previous_status = status;
+                        status = dest; 
+                    }
+                }
+
                 if (discovery) {
                     std::vector<GameInfo> games = online_player.game_discovery.discoverGames(2000, 1);
                     for (const auto& game : games) {
