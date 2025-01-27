@@ -88,7 +88,7 @@ void GameServer::handle_join_requests(std::string pseudo,
             
             buffer_data[4] = 0x04; 
             pseudo.resize(16, ' ');
-            for (int i=0;i<64;i++) {
+            for (int i=0;i<16;i++) {
                 buffer_data[5+i] = static_cast<uint8_t>(pseudo[i]);
             }
 
@@ -106,7 +106,7 @@ void GameServer::handle_join_requests(std::string pseudo,
         buffer_data[4] = 0x03; 
         std::string pseudo;
         pseudo.resize(16, ' ');
-        for (int i=0;i<64;i++) {
+        for (int i=0;i<16;i++) {
             buffer_data[5+i] = static_cast<uint8_t>(pseudo[i]);
         }
         
@@ -114,7 +114,7 @@ void GameServer::handle_join_requests(std::string pseudo,
         sendto(gamesock_fd, buffer_data, buffer_data[3], MSG_CONFIRM,
               (const struct sockaddr *) &cliaddr, len);
     }
-
+    std::cout << "test3" << std::endl;
 }
 
 bool GameServer::start_game() {
@@ -191,6 +191,8 @@ void GameServer::handle_received_packets() {
                     } else { // received join accepted/refused
                         std::cout << "Unexpected packet received" << std::endl;
                     }
+
+                    std::cout << "test4" << std::endl;
                     break;
                 
 
