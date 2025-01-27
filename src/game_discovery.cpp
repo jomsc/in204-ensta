@@ -1,4 +1,4 @@
-#include "../include/game_discovery.hpp"
+#include "game_discovery.hpp"
 
 bool GameDiscovery::initializeHost(const std::string& gameName, 
     const std::string& motd, uint16_t gamePort, int maxPlayers) {

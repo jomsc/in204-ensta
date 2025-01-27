@@ -1,8 +1,10 @@
-#include <SFML/Graphics.hpp>
 #include "player.hpp"
 #include "server.hpp"
+#include "menu.hpp"
+#include "filesystem_resolve.hpp"
+
+#include <SFML/Graphics.hpp>
 #include <iostream>
-#include <enet/enet.h>  
 #include <chrono>
 
 
@@ -13,7 +15,8 @@ int main(int argc, char **argv)
     int VIDEO_WIDTH= ecran.width;
     int VIDEO_HEIGHT= ecran.height;
 
-    sf::RenderWindow window(sf::VideoMode(VIDEO_WIDTH, VIDEO_HEIGHT), "Tetris!");
+    //sf::RenderWindow window(sf::VideoMode(VIDEO_WIDTH, VIDEO_HEIGHT), "Tetris!");
+    sf::RenderWindow window(sf::VideoMode(), "TETRIS RIVALS", sf::Style::Fullscreen);
     srand(time(0));
 
     sf::Clock clock;
@@ -51,8 +54,13 @@ int main(int argc, char **argv)
         vidX[8*13+j] = 1080*13;
         vidY[8*13+j] = 1920*j;
     }
+    
 
-    if (!bgVideoTexture.loadFromFile("../src/assets/background_vid/out.jpeg")) {
+    std::string exeDir = getExecutableDirectory();
+    std::string videoPath = exeDir + "/assets/background_vid/out.jpeg";
+
+
+    if (!bgVideoTexture.loadFromFile(videoPath)) {
         std::cout << "Error loading background video!" << std::endl;  
     }
     bgVideoSprite.setTexture(bgVideoTexture);
@@ -60,6 +68,8 @@ int main(int argc, char **argv)
 
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
                                         25565, 0);
+
+    //Menu mainMenu = Menu();
     
     
 
@@ -97,18 +107,19 @@ int main(int argc, char **argv)
             status = 1;
         }
 
-        if (strcmp(argv[2], "--debug") == 0) { 
-            debug_headless = 1;
-            window.close(); 
-            std::cout << "HEADLESS MODE ACTIVE" << std::endl;
-            std::cout << std::endl;
+        if (argc == 3) {
+            if (strcmp(argv[2], "--debug") == 0) { 
+                debug_headless = 1;
+                window.close(); 
+                std::cout << "HEADLESS MODE ACTIVE" << std::endl;
+                std::cout << std::endl;
+            }
         }
+        
 
-    } else {
+    } else { // no args, default behavior
         status = 1;
     }
-
-    
 
     if (host) {
         game_server.create_game();
@@ -128,8 +139,7 @@ int main(int argc, char **argv)
         switch (status) {
 
             case 0:
-                // menu
-                // TO DO : display menu, handle mouse to select 
+                //mainMenu.display(&window);
                 break;
 
             case 1:

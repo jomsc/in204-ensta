@@ -2,6 +2,7 @@
 #define GRID_HPP
 
 #include "piece.hpp"
+#include "filesystem_resolve.hpp"
 #include <SFML/Graphics.hpp>
 
 class Grid {
@@ -55,7 +56,9 @@ class Grid {
 
             pieces = std::vector<Piece>();
 
-            arial.loadFromFile("../src/assets/fonts/arial.ttf");
+            std::string exeDir = getExecutableDirectory();
+            std::string fontPath = exeDir + "/assets/fonts/arial.ttf";
+            arial.loadFromFile(fontPath);
         }
 
         ~Grid() {}
