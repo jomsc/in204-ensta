@@ -25,6 +25,8 @@ int main(int argc, char **argv)
     OnlinePlayer online_player = OnlinePlayer();
 
     int status = 0; // 0 : menu, 1 : classic game, 2 : LAN screen, 3 : LAN game
+    int previous_status = 0;
+
 
     player.grid.size_cell=(VIDEO_HEIGHT-2*player.grid.y_offset
         -player.grid.line_thickness*(player.grid.numrows+1))/(player.grid.numrows+1);
@@ -83,23 +85,23 @@ int main(int argc, char **argv)
         std::cout << "Error loading main menu texture!" << std::endl;  
     }
     
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 50, 1404, 267, 0, 0, -1 });
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 50, 1380, 267, 13, 30, -1 });
     mainMenuColorArray.emplace_back(sf::Color::White);
     mainMenuHoverColorArray.emplace_back(sf::Color::White);
 
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 800, 696, 48, 1380, 0, 1 });
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 800, 709, 50, 1380, 30, 1 });
     mainMenuColorArray.emplace_back(sf::Color::White);
     mainMenuHoverColorArray.emplace_back(sf::Color::Yellow);
 
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 860, 484, 48, 1500, 50, 2 });
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 860, 505, 50, 1500, 80, 2 });
     mainMenuColorArray.emplace_back(sf::Color::White);
     mainMenuHoverColorArray.emplace_back(sf::Color::Yellow);
 
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 920, 452, 48, 1500, 100, 3 });
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 920, 470, 50, 1500, 130, 3 });
     mainMenuColorArray.emplace_back(sf::Color::White);
     mainMenuHoverColorArray.emplace_back(sf::Color::Yellow);
 
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 980, 222, 57, 1500, 150, -2 });
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 980, 250, 60, 1500, 180, -2 });
     mainMenuColorArray.emplace_back(sf::Color::White);
     mainMenuHoverColorArray.emplace_back(sf::Color::Red);
 
@@ -166,9 +168,6 @@ int main(int argc, char **argv)
         game_server.handle_received_packets();
     }   
 
-
-    std::cout << "test : " << status << std::endl;
-
     while (window.isOpen() || debug_headless) {
         clock.restart();
         window.clear();
@@ -183,8 +182,6 @@ int main(int argc, char **argv)
         mouseX = sf::Mouse::getPosition().x;
         mouseY = sf::Mouse::getPosition().y;
 
-        status = 0;
-
         switch (status) {
 
             case 0:
@@ -192,6 +189,13 @@ int main(int argc, char **argv)
                 window.draw(bgVideoSprite);
                 mainMenu.display(&window, mouseX, mouseY);
                 dest = mainMenu.dest(mouseX, mouseY, isClicking);
+                if (dest != -1) {
+                    if (dest == -2) { window.close(); }
+                    else { 
+                        previous_status = status;
+                        status = dest; 
+                    }
+                }
                 break;
 
             case 1:
@@ -255,6 +259,12 @@ int main(int argc, char **argv)
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == event.KeyPressed) {
+                if (event.key.code == sf::Keyboard::Escape) {
+                    status = previous_status;
+                }
+            }
         }
     
         window.display();

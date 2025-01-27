@@ -14,10 +14,11 @@ class Button {
         int onClickDest; // -1 if not clickable
         sf::Color buttonColor;
         sf::Color onHoverColor;
+        sf::Texture buttonTexture;
 
     public:
         void display(sf::RenderWindow *window, int a, int b) {
-            if (isInside(a, b) && onClickDest != -1) {
+            if (isInside(a, b) && (onClickDest != -1)) {
                 buttonSprite.setColor(onHoverColor);
             } else {
                 buttonSprite.setColor(buttonColor);
@@ -27,7 +28,7 @@ class Button {
         }
 
         bool isInside(int a, int b) {
-            return (a >= x && a <= x+w) && (b >= y && y <= b+h);
+            return ((a >= x) && (a <= x+w)) && ((b >= y) && (b <= y+h));
         }
 
         int getDest() { return onClickDest; }
@@ -40,7 +41,8 @@ class Button {
             srcRect = sf::IntRect(infos[4], infos[5], this->w, this->h);
             this->onClickDest = infos[6];
 
-            buttonSprite.setTexture(theTexture);
+            buttonTexture = theTexture;
+            buttonSprite.setTexture(buttonTexture);
             buttonSprite.setTextureRect(this->srcRect); 
 
             buttonColor = theColor;

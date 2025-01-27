@@ -13,5 +13,6 @@ int Menu::dest(int x, int y, bool isClicking) {
                 return button.getDest();
             }
         }
+        return -1;
     } else { return -1; }
 }
