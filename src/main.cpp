@@ -120,18 +120,58 @@ int main(int argc, char **argv)
         std::cout << "Error loading host menu texture!" << std::endl;  
     }
     
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 50, 1000, 500, 0, 0, -1 });
-    mainMenuColorArray.emplace_back(sf::Color::White);
-    mainMenuHoverColorArray.emplace_back(sf::Color::White);
+    hostMenuInfos.emplace_back(std::vector<int>{ 460, 257, 1000, 500, 0, 0, -1 });
+    hostMenuColorArray.emplace_back(sf::Color::White);
+    hostMenuHoverColorArray.emplace_back(sf::Color::White);
 
-    mainMenuInfos.emplace_back(std::vector<int>{ 50, 1050, 871, 65, 0, 510, 5 });
-    mainMenuColorArray.emplace_back(sf::Color::Yellow);
-    mainMenuHoverColorArray.emplace_back(sf::Color::Red);
+    hostMenuInfos.emplace_back(std::vector<int>{ 525, 807, 871, 65, 0, 510, 5 });
+    hostMenuColorArray.emplace_back(sf::Color::Yellow);
+    hostMenuHoverColorArray.emplace_back(sf::Color::Red);
 
     Menu hostMenu = Menu(hostMenuInfos, hostMenuTexture, 
                          hostMenuColorArray, hostMenuHoverColorArray);
 
 
+    // JOIN MENU
+    std::vector<std::vector<int>> joinMenuInfos;
+    sf::Texture joinMenuTexture;
+    std::vector<sf::Color> joinMenuColorArray;
+    std::vector <sf::Color> joinMenuHoverColorArray;
+
+    std::string joinMenuPath = exeDir + "/assets/menus/menu_join.png";
+    if (!joinMenuTexture.loadFromFile(joinMenuPath)) {
+        std::cout << "Error loading join menu texture!" << std::endl;  
+    }
+    
+    joinMenuInfos.emplace_back(std::vector<int>{ 460, 257, 1000, 500, 0, 0, -1 });
+    joinMenuColorArray.emplace_back(sf::Color::White);
+    joinMenuHoverColorArray.emplace_back(sf::Color::White);
+
+    Menu joinMenu = Menu(joinMenuInfos, joinMenuTexture, 
+                         joinMenuColorArray, joinMenuHoverColorArray);
+
+
+    // PAUSE MENU
+    std::vector<std::vector<int>> pauseMenuInfos;
+    sf::Texture pauseMenuTexture;
+    std::vector<sf::Color> pauseMenuColorArray;
+    std::vector <sf::Color> pauseMenuHoverColorArray;
+
+    std::string pauseMenuPath = exeDir + "/assets/menus/menu_pause.png";
+    if (!pauseMenuTexture.loadFromFile(pauseMenuPath)) {
+        std::cout << "Error loading pause menu texture!" << std::endl;  
+    }
+    
+    pauseMenuInfos.emplace_back(std::vector<int>{ 670, 450, 581, 68, 0, 0, 7 });
+    pauseMenuColorArray.emplace_back(sf::Color::White);
+    pauseMenuHoverColorArray.emplace_back(sf::Color::Blue);
+
+    pauseMenuInfos.emplace_back(std::vector<int>{ 801, 548, 317, 81, 0, 88 });
+    pauseMenuColorArray.emplace_back(sf::Color::White);
+    pauseMenuHoverColorArray.emplace_back(sf::Color::Red);
+
+    Menu pauseMenu = Menu(pauseMenuInfos, pauseMenuTexture, 
+                         pauseMenuColorArray, pauseMenuHoverColorArray);        
 
 
 
@@ -212,7 +252,7 @@ int main(int argc, char **argv)
 
         switch (status) {
 
-            case 0:
+            case 0: // main menu 
                 bgVideoSprite.setTextureRect(srcRect);
                 window.draw(bgVideoSprite);
                 mainMenu.display(&window, mouseX, mouseY);
@@ -226,18 +266,18 @@ int main(int argc, char **argv)
                 }
                 break;
 
-            case 1:
+            case 1: // in-game classic
                 player.update();
                 bgVideoSprite.setTextureRect(srcRect);
                 window.draw(bgVideoSprite);
                 player.display(&window);
                 break;
 
-            case 2:
+            case 2: // host LAN 
                 bgVideoSprite.setTextureRect(srcRect);
                 window.draw(bgVideoSprite);
                 hostMenu.display(&window, mouseX, mouseY);
-                dest = mainMenu.dest(mouseX, mouseY, isClicking);
+                dest = hostMenu.dest(mouseX, mouseY, isClicking);
                 if (dest != -1) {
                     if (dest == -2) { window.close(); }
                     else { 
@@ -245,7 +285,20 @@ int main(int argc, char **argv)
                         status = dest; 
                     }
                 }
-
+                break;
+            
+            case 3: // join LAN 
+                bgVideoSprite.setTextureRect(srcRect);
+                window.draw(bgVideoSprite);
+                joinMenu.display(&window, mouseX, mouseY);
+                dest = joinMenu.dest(mouseX, mouseY, isClicking);
+                if (dest != -1) {
+                    if (dest == -2) { window.close(); }
+                    else { 
+                        previous_status = status;
+                        status = dest; 
+                    }
+                }
                 if (discovery) {
                     std::vector<GameInfo> games = online_player.game_discovery.discoverGames(2000, 1);
                     for (const auto& game : games) {
@@ -277,18 +330,36 @@ int main(int argc, char **argv)
                         
                         success = online_player.connect_to_server(games[game_chosen]);
                         if (success) {
-                            status = 3;
+                            status = 4;
                             std::cout << "status : " << status << std::endl;
                         }
                     }
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                
                 break;
-            
-            case 3:
-                std::cout << "JE VEUX JOUER NSM" << std::endl;
+            case 4: // waiting LAN
                 break;
-            
+            case 5: // in-game LAN
+                break;
+
+            case 6: // pause
+                bgVideoSprite.setTextureRect(srcRect);
+                window.draw(bgVideoSprite);
+                pauseMenu.display(&window, mouseX, mouseY);
+                dest = pauseMenu.dest(mouseX, mouseY, isClicking);
+                if (dest != -1) {
+                    if (dest == 7) { 
+                        previous_status = status;
+                        status = 1;    
+                    }
+                    else { 
+                        previous_status = 0;
+                        status = 0;
+                    }
+                }
+                break; 
+
             default:
                 break;
 
@@ -302,7 +373,15 @@ int main(int argc, char **argv)
 
             if (event.type == event.KeyPressed) {
                 if (event.key.code == sf::Keyboard::Escape) {
-                    status = previous_status;
+                    if (status == 1) {
+                        status = 6;
+                        previous_status = 1;
+                    } else if (status == 5) {
+                        status = 8;
+                        previous_status = 5;
+                    } else {
+                        status = previous_status;
+                    }
                 }
             }
         }

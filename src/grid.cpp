@@ -235,11 +235,11 @@ bool Grid::impossible_kick(int x1,int y1,int sens)
     {
         if(y2<0)
         {
-            temp[0].move(2);
+            temp[0].move(3);
         }
         else
         {
-            temp[0].move(3);
+            temp[0].move(2);
         }
     }
 
@@ -252,7 +252,7 @@ bool Grid::impossible_kick(int x1,int y1,int sens)
                     if(this->cells[(temp[0].y+i)*numcols+temp[0].x+j]>0||
                       temp[0].x+j < 0 ||
                       temp[0].x+j>=numcols ||
-                      temp[0].y+i>numrows)
+                      temp[0].y+i>=numrows)
                     {   
                         return true;
                     }
