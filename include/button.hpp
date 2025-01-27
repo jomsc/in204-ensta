@@ -11,10 +11,17 @@ class Button {
         int h;
         sf::IntRect srcRect;
         sf::Sprite buttonSprite;
-        int onClickDest;
+        int onClickDest; // -1 if not clickable
+        sf::Color buttonColor;
+        sf::Color onHoverColor;
 
     public:
-        void display(sf::RenderWindow *window) {
+        void display(sf::RenderWindow *window, int a, int b) {
+            if (isInside(a, b) && onClickDest != -1) {
+                buttonSprite.setColor(onHoverColor);
+            } else {
+                buttonSprite.setColor(buttonColor);
+            }
             buttonSprite.setPosition(this->x, this->y);
             window->draw(this->buttonSprite);
         }
@@ -25,7 +32,7 @@ class Button {
 
         int getDest() { return onClickDest; }
 
-        Button(int infos[7], sf::Texture theTexture) {
+        Button(std::vector<int> infos, sf::Texture theTexture, sf::Color theColor, sf::Color theHoverColor) {
             this->x = infos[0];
             this->y = infos[1];
             this->w = infos[2];
@@ -35,6 +42,9 @@ class Button {
 
             buttonSprite.setTexture(theTexture);
             buttonSprite.setTextureRect(this->srcRect); 
+
+            buttonColor = theColor;
+            onHoverColor = theHoverColor;
         }
 
         ~Button() {}

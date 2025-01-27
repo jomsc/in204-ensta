@@ -15,7 +15,7 @@ if(NOT SFML_FOUND)
     FetchContent_Declare(
         SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.5.1
+        GIT_TAG 2.5
     )
     
     FetchContent_MakeAvailable(SFML)

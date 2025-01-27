@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     Player player = Player();
     OnlinePlayer online_player = OnlinePlayer();
 
-    int status = 2; // 0 : menu, 1 : classic game, 2 : LAN screen, 3 : LAN game
+    int status = 0; // 0 : menu, 1 : classic game, 2 : LAN screen, 3 : LAN game
 
     player.grid.size_cell=(VIDEO_HEIGHT-2*player.grid.y_offset
         -player.grid.line_thickness*(player.grid.numrows+1))/(player.grid.numrows+1);
@@ -69,9 +69,49 @@ int main(int argc, char **argv)
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
                                         25565, 0);
 
-    //Menu mainMenu = Menu();
     
+    // DEFINITIONS DE TOUS LES MENUS 
+
+    // MAIN MENU
+    std::vector<std::vector<int>> mainMenuInfos;
+    sf::Texture mainMenuTexture;
+    std::vector<sf::Color> mainMenuColorArray;
+    std::vector <sf::Color> mainMenuHoverColorArray;
+
+    std::string mainMenuPath = exeDir + "/assets/menus/mainmenu.png";
+    if (!mainMenuTexture.loadFromFile(mainMenuPath)) {
+        std::cout << "Error loading main menu texture!" << std::endl;  
+    }
     
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 50, 1404, 267, 0, 0, -1 });
+    mainMenuColorArray.emplace_back(sf::Color::White);
+    mainMenuHoverColorArray.emplace_back(sf::Color::White);
+
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 800, 696, 48, 1380, 0, 1 });
+    mainMenuColorArray.emplace_back(sf::Color::White);
+    mainMenuHoverColorArray.emplace_back(sf::Color::Yellow);
+
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 860, 484, 48, 1500, 50, 2 });
+    mainMenuColorArray.emplace_back(sf::Color::White);
+    mainMenuHoverColorArray.emplace_back(sf::Color::Yellow);
+
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 920, 452, 48, 1500, 100, 3 });
+    mainMenuColorArray.emplace_back(sf::Color::White);
+    mainMenuHoverColorArray.emplace_back(sf::Color::Yellow);
+
+    mainMenuInfos.emplace_back(std::vector<int>{ 50, 980, 222, 57, 1500, 150, -2 });
+    mainMenuColorArray.emplace_back(sf::Color::White);
+    mainMenuHoverColorArray.emplace_back(sf::Color::Red);
+
+    Menu mainMenu = Menu(mainMenuInfos, mainMenuTexture, 
+                         mainMenuColorArray, mainMenuHoverColorArray);
+
+    int mouseX = 0;
+    int mouseY = 0;
+    bool isClicking = 0;
+
+    int dest = -1;
+
 
     bool host = false; 
     bool discovery = false;
@@ -118,13 +158,16 @@ int main(int argc, char **argv)
         
 
     } else { // no args, default behavior
-        status = 1;
+        status = 0;
     }
 
     if (host) {
         game_server.create_game();
         game_server.handle_received_packets();
     }   
+
+
+    std::cout << "test : " << status << std::endl;
 
     while (window.isOpen() || debug_headless) {
         clock.restart();
@@ -136,10 +179,19 @@ int main(int argc, char **argv)
                                                     1920,
                                                     1080);
 
+        isClicking = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+        mouseX = sf::Mouse::getPosition().x;
+        mouseY = sf::Mouse::getPosition().y;
+
+        status = 0;
+
         switch (status) {
 
             case 0:
-                //mainMenu.display(&window);
+                bgVideoSprite.setTextureRect(srcRect);
+                window.draw(bgVideoSprite);
+                mainMenu.display(&window, mouseX, mouseY);
+                dest = mainMenu.dest(mouseX, mouseY, isClicking);
                 break;
 
             case 1:

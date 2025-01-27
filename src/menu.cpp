@@ -1,8 +1,8 @@
 #include "menu.hpp"
 
-void Menu::display(sf::RenderWindow *window) {
+void Menu::display(sf::RenderWindow *window, int a, int b) {
     for (auto button : this->buttons) {
-        button.display(window);
+        button.display(window, a, b);
     }
 }
 
