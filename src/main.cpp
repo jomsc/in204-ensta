@@ -23,7 +23,7 @@ int main()
 
 
     player.grid.size_cell=(VIDEO_HEIGHT-2*player.grid.y_offset
-        -player.grid.line_thickness*(player.grid.numrows+1))/player.grid.numrows;
+        -player.grid.line_thickness*(player.grid.numrows+1))/(player.grid.numrows+1);
     player.grid.x_offset= (VIDEO_WIDTH-player.grid.numcols*player.grid.size_cell
         -(player.grid.numcols+1)*player.grid.line_thickness)/2;
     player.grid.size_waiting_cell = 0.625*player.grid.size_cell;
