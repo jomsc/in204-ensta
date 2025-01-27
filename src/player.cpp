@@ -202,6 +202,7 @@ bool OnlinePlayer::connect_to_server(GameInfo gameInfo) {
     servaddr.sin_port = htons(gameInfo.gamePort);
 
     if (inet_pton(AF_INET, gameInfo.serverIP, &servaddr.sin_addr) <= 0) {
+        std::cout << "Game IP : " << gameInfo.serverIP << " failed" << std::endl;
         perror("Invalid address / Address not supported");
         close(gamesock_fd);
         return false;
@@ -280,7 +281,13 @@ bool OnlinePlayer::connect_to_server(GameInfo gameInfo) {
                 for (int i=0;i<16;i++) {
                     pseudo[i] = static_cast<char>(buffer[5+i]);
                 }
-                this->seed = *reinterpret_cast<uint32_t*>(buffer[21]);
+                std::cout << "test 1" << std::endl;
+                this->seed = 
+                        ((uint32_t)buffer[21]      ) |
+                        ((uint32_t)buffer[21] << 8 ) |
+                        ((uint32_t)buffer[21] << 16) |
+                        ((uint32_t)buffer[21] << 24); 
+                
                 status = 2;
                 return true;
             case 3:

@@ -122,8 +122,9 @@ class OnlinePlayer : public Player {
         void handle_start_packet(uint8_t *buffer);
         void handle_end_packet(uint8_t *buffer);
 
-        void setPseudo (std::string thePseudo) { this->pseudo = thePseudo; }
-
+        void setPseudo(std::string thePseudo) { this->pseudo = thePseudo; }
+        std::string getPseudo() { return this->pseudo; }
+        
         OnlinePlayer() {
             if ( (gamesock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
                 perror("game server socket creation failed");

@@ -49,7 +49,8 @@ void GameServer::handle_join_requests(std::string pseudo,
             levels.push_back(1);
             loss_list.push_back(0);
             rand_index.push_back(0);
-            gameInfo.currentPlayers++;
+            gameInfo.currentPlayers += 1;
+            this->gameDiscovery.numberOfPlayers = gameInfo.currentPlayers;
 
             // send back the join request accepted packet to them
             uint8_t buffer_data[25]; 
@@ -60,17 +61,23 @@ void GameServer::handle_join_requests(std::string pseudo,
             
             buffer_data[4] = 0x02; 
             pseudo.resize(16, ' ');
-            for (int i=0;i<64;i++) {
+            for (int i=0;i<16;i++) {
                 buffer_data[5+i] = static_cast<uint8_t>(pseudo[i]);
             }
-
-            *reinterpret_cast<uint32_t*>(buffer_data[21]) = this->seed;
-
             
+            buffer_data[21] = this->seed & 0xFF;
+            buffer_data[22] = (this->seed >> 8) & 0xFF;
+            buffer_data[23] = (this->seed >> 16) & 0xFF;
+            buffer_data[24] = (this->seed >> 24) & 0xFF;
+
             // envoyer buffer_data a cliaddr
             int len = sizeof(cliaddr);
             sendto(gamesock_fd, buffer_data, buffer_data[3], MSG_CONFIRM,
                   (const struct sockaddr *) &cliaddr, len);
+
+            std::cout << "Player accepted ! Pseudo : " << player_list.back() << std::endl;
+            std::cout << "Players : " << std::to_string(gameInfo.currentPlayers) 
+            << "/" << std::to_string(gameInfo.maxPlayers) << std::endl;
 
         } else {
             uint8_t buffer_data[25]; 
@@ -112,6 +119,7 @@ void GameServer::handle_join_requests(std::string pseudo,
 
 bool GameServer::start_game() {
     if (gameInfo.currentPlayers > 1) {
+        status = 1;
         gameDiscovery.stopBroadcasting();
         // send packet game start by broadcasting the packet
         uint8_t buffer_data[5];
@@ -137,58 +145,63 @@ bool GameServer::start_game() {
 void GameServer::update() {} 
 
 void GameServer::handle_received_packets() {
+    std::cout << "handling received packets" << std::endl;
     receiveThread = std::thread([this]() {
-        socklen_t len;
-        int n;
-        len = sizeof(cliaddr);
-        n = recvfrom(gamesock_fd, (uint8_t*)buffer, 1024, MSG_WAITALL,
-                    (struct sockaddr *) &cliaddr, &len);
+        while (status < 2) {
+            socklen_t len;
+            int n;
+            len = sizeof(cliaddr);
+            n = recvfrom(gamesock_fd, (uint8_t*)buffer, 1024, MSG_WAITALL,
+                        (struct sockaddr *) &cliaddr, &len);
 
-        if (buffer[0] != 0xD4) {
-            std::cout << "incorrect head: " << buffer[0] << std::endl;
-            return;
-        }
+            if (buffer[0] != 0xD4) {
+                std::cout << "incorrect head: " << buffer[0] << std::endl;
+                return;
+            }
 
-        if (buffer[2] != 0x01) {
-            std::cout << "incorrect version: " << buffer[2] << std::endl;
-            return;
-        }
+            if (buffer[2] != 0x01) {
+                std::cout << "incorrect version: " << buffer[2] << std::endl;
+                return;
+            }
 
-        if (buffer[3] != n) {
-            std::cout << "incorrect size: " 
-            << n << " with expected length: " << buffer[3] << std::endl;
-            return;
-        }
+            if (buffer[3] != n) {
+                std::cout << "incorrect size: " 
+                << n << " with expected length: " << buffer[3] << std::endl;
+                return;
+            }
 
-        std::string pseudo;
-        switch (buffer[1]) { 
-            // on appelle la fonction correcte en fonction du type de paquet 
+            std::string pseudo;
+            switch (buffer[1]) { 
+                // on appelle la fonction correcte en fonction du type de paquet 
 
-            case 1:
-                // broadcast packet, ignore
-                std::cout << "Other server on LAN, ignoring." << std::endl;
-                break;
+                case 1:
+                    // broadcast packet, ignore
+                    std::cout << "Other server on LAN, ignoring." << std::endl;
+                    break;
 
-            case 2:
-                // join request
-                std::cout << "Join request recieved" << std::endl;
-                if (buffer[4]==1) {
-                    pseudo.resize(16, ' ');
-                    for (int i=0;i<16;i++) {
-                        pseudo[i] = static_cast<char>(buffer[5+i]);
+                case 2:
+                    // join request
+                    std::cout << "Join request recieved" << std::endl;
+                    if (buffer[4]==1) {
+                        pseudo.resize(16, ' ');
+                        for (int i=0;i<16;i++) {
+                            pseudo[i] = static_cast<char>(buffer[5+i]);
+                        }
+                        handle_join_requests(pseudo, cliaddr);
+                    } else { // received join accepted/refused
+                        std::cout << "Unexpected packet received" << std::endl;
                     }
-                    handle_join_requests(pseudo, cliaddr);
-                } else { // received join accepted/refused
-                    std::cout << "Unexpected packet received" << std::endl;
-                }
-                break;
-            
+                    break;
+                
 
-            default:
-                std::cout << "Unexpected packet received" << std::endl;
-        }
+                default:
+                    std::cout << "Unexpected packet received" << std::endl;
+            }
+        }        
     });
 }
+
+
 
 void GameServer::send_game_packets() {
     for (int i=0;i<this->gameInfo.currentPlayers;i++) {
@@ -283,6 +296,8 @@ bool GameServer::declare_victory() {
                         int len = sizeof(cliaddr_list[j]);
                         sendto(gamesock_fd, buffer_data, buffer_data[3], MSG_CONFIRM,
                                 (const struct sockaddr *) &cliaddr_list[j], len);
+
+                        status = 2;
                                 
                         return true;
                     }
@@ -297,5 +312,9 @@ bool GameServer::declare_victory() {
 }
 
 void GameServer::delete_game() {
+    if (receiveThread.joinable()) {
+        receiveThread.join();
+        status = 3;
+    }
     close(gamesock_fd);
 }

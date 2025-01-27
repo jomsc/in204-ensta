@@ -28,7 +28,8 @@ int main(int argc, char **argv)
     int vidY[107];
     float scaleX = VIDEO_WIDTH/1920.0;
     float scaleY = VIDEO_HEIGHT/1080.0;
-    std::cout << scaleX<<std::endl;
+
+    bool debug_headless = false;
 
     for (int i=0;i<13;i++){
         for (int j=0;j<8;j++) {
@@ -51,7 +52,7 @@ int main(int argc, char **argv)
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
                                         25565, 2);
     
-    if (argc!=2) {
+    if (argc!=2 && argc!=3) {
         std::cout << "Usage : ./TETRIS_RIVALS --<mode>" << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -59,19 +60,15 @@ int main(int argc, char **argv)
     bool host = false; 
     bool discovery = false;
 
-    std::cout << "argv : " << argv[1] << std::endl;
-
-
     if (strcmp(argv[1], "--client") == 0) {
         host = false;
         discovery = true;
-        std::cout << "true true" << std::endl;
     }
 
     if (strcmp(argv[1], "--server") == 0) {
         host = true;
         discovery = false;
-        std::cout << "server mode" << std::endl;
+        std::cout << "STARTING ON SERVER MODE" << std::endl;
     }
     
     
@@ -87,14 +84,20 @@ int main(int argc, char **argv)
         status = 1;
     }
 
-    if (host) {
-        game_server.create_game();
-        std::cout << "Game created" << std::endl;
+    if (strcmp(argv[2], "--debug") == 0) { 
+        debug_headless = 1;
+        window.close(); 
+        std::cout << "HEADLESS MODE ACTIVE" << std::endl;
+        std::cout << std::endl;
     }
 
-    
 
-    while (window.isOpen()) {
+    if (host) {
+        game_server.create_game();
+        game_server.handle_received_packets();
+    }   
+
+    while (window.isOpen() || debug_headless) {
         clock.restart();
         window.clear();
 
@@ -122,10 +125,16 @@ int main(int argc, char **argv)
                 if (discovery) {
                     std::vector<GameInfo> games = online_player.game_discovery.discoverGames(2000, 1);
                     for (const auto& game : games) {
+                        std::cout << std::endl;
                         std::cout << "Game found : " << std::endl;
                         std::cout << "Name : " << game.gameName << std::endl;
-                        std::cout << "Port : " << game.gamePort << std::endl;
+                        std::cout << "Address : " << game.serverIP << ":" << game.gamePort << std::endl;
                         std::cout << "MOTD : " << game.motd << std::endl;
+                        
+                        std::cout << "Players : " << 
+                        std::to_string(game.currentPlayers) << "/" 
+                        << std::to_string(game.maxPlayers) << std::endl;
+                        
                         std::cout << std::endl;
                     }
                     std::cout << "choose a game (-1 to refuse)" << std::endl;
@@ -136,8 +145,12 @@ int main(int argc, char **argv)
                         std::string pseudo;
                         std::cout << "choose your pseudo (16 characters max)" << std::endl;
                         std::cin >> pseudo;
+                        pseudo.resize(16, ' ');
                         online_player.setPseudo(pseudo);
                         bool success = false;
+                        //std::cout << "pseudo chosen : " << online_player.getPseudo() << std::endl;
+                        std::cout << "address : " << games[game_chosen].serverIP << std::endl;
+                        
                         success = online_player.connect_to_server(games[game_chosen]);
                         if (success) {
                             status = 3;

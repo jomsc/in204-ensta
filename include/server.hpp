@@ -18,8 +18,11 @@ class GameServer {
         std::vector<int> piece_list; // liste des pieces generees
         std::vector<int> rand_index; // index pour chaque joueur, ou il en est
 
+
         uint32_t seed;
         uint32_t sequence_number;
+
+        int status = 0; // 0 : broadcasting, 1 : in-game, 2 : game is over, 3 : game is deleted
 
         int simulationRate = 10;
         
