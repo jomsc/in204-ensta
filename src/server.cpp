@@ -114,7 +114,6 @@ void GameServer::handle_join_requests(std::string pseudo,
         sendto(gamesock_fd, buffer_data, buffer_data[3], MSG_CONFIRM,
               (const struct sockaddr *) &cliaddr, len);
     }
-    std::cout << "test3" << std::endl;
 }
 
 bool GameServer::start_game() {
@@ -142,7 +141,9 @@ bool GameServer::start_game() {
     }
 }
 
-void GameServer::update() {} 
+void GameServer::update() {
+
+} 
 
 void GameServer::handle_received_packets() {
     std::cout << "handling received packets" << std::endl;
@@ -171,6 +172,7 @@ void GameServer::handle_received_packets() {
             }
 
             std::string pseudo;
+            int playerSource = 0;
             switch (buffer[1]) { 
                 // on appelle la fonction correcte en fonction du type de paquet 
 
@@ -191,10 +193,21 @@ void GameServer::handle_received_packets() {
                     } else { // received join accepted/refused
                         std::cout << "Unexpected packet received" << std::endl;
                     }
-
-                    std::cout << "test4" << std::endl;
                     break;
                 
+                case 5:
+                    std::cout << "line received, transmitting" << std::endl;
+                    for (int i=0;i<this->cliaddr_list.size();i++) {
+                        if (cliaddr.sin_addr.s_addr == cliaddr_list[i].sin_addr.s_addr) {
+                            playerSource = i;
+                        }
+                    }
+
+                    for (int i=0;i<this->player_list.size();i++) {
+                        if (i!=playerSource) {
+                            send_line_packet(playerSource, i, playerSource);
+                        }
+                    }
 
                 default:
                     std::cout << "Unexpected packet received" << std::endl;
@@ -225,14 +238,8 @@ void GameServer::send_line_packet(int playerSource, int playerDest, int n) {
     buffer_data[0] = 0xD4;
     buffer_data[1] = 0x05;
     buffer_data[2] = 0x01;
-    buffer_data[3] = 25;
-
-    *reinterpret_cast<uint32_t*>(buffer_data[4]) = this->sequence_number;
-    buffer_data[8] = n; // quelle case sera libre de la ligne envoyée
-
-    for (int i=0;i<64;i++) {
-        buffer_data[9+i] = static_cast<uint8_t>(player_list[playerSource][i]);
-    }
+    buffer_data[3] = 5;
+    buffer_data[4] = n;
 
     int len = sizeof(cliaddr_list[playerDest]);
     sendto(gamesock_fd, buffer_data, buffer_data[3], MSG_CONFIRM,

@@ -89,10 +89,8 @@ paquet classic game server->client je me prends une ligne {
       - tete (1 byte) : OBLIGATOIRE 0xD4
       - type (1 byte) : 0x05
       - version (1 byte) : 0x01
-      - taille (1 byte) : 25 octets
-    - sequence number (uint32_t : 4 bytes) / frame number
+      - taille (1 byte) : 5 octets
     - malus (1 byte)
-    - pseudo du joueur qui envoie (16 octets)
 }
 
 paquet game start {

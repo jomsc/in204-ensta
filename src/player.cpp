@@ -469,3 +469,29 @@ void OnlinePlayer::handle_end_packet(uint8_t *buffer) {
             break;
     }
 }
+
+void OnlinePlayer::online_update() {
+    std::vector<int> lines = grid.check_lines();
+    if (!lines.empty()) {
+        int n = 0;
+        for (auto line : lines) {
+            n++;
+        }
+        for (int i=0;i<n;i++) {
+            this->send_line_packet();
+        }
+    }
+    this->update();
+}
+
+void OnlinePlayer::send_line_packet() {
+    uint8_t buffer_data[25];
+    buffer_data[0] = 0xD4;
+    buffer_data[1] = 0x05;
+    buffer_data[2] = 0x01;
+    buffer_data[3] = 5;
+    buffer_data[4] = 1;
+
+    ssize_t bytes_sent = send(gamesock_fd, buffer_data, buffer_data[3], 0);
+    return;
+}

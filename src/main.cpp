@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
     Player player = Player();
     OnlinePlayer online_player = OnlinePlayer();
-    std::string player_pseudo = "joseph";
+    std::string player_pseudo = "phesox";
     online_player.setPseudo(player_pseudo);
 
     int status = 0;
@@ -438,6 +438,10 @@ int main(int argc, char **argv)
                 }
                 
             case 5: // in-game LAN
+                online_player.online_update();
+                bgVideoSprite.setTextureRect(srcRect);
+                window.draw(bgVideoSprite);
+                player.display(&window);
                 break;
 
             case 6: // pause
@@ -457,10 +461,6 @@ int main(int argc, char **argv)
                 }
                 break; 
 
-            case 8:
-                // pause for in-game, we still have to update the online_player.
-                break;
-
             default:
                 break;
 
@@ -478,7 +478,7 @@ int main(int argc, char **argv)
                         status = 6;
                         previous_status = 1;
                     } else if (status == 5) {
-                        status = 8;
+                        status = 6;
                         previous_status = 5;
                     } else {
                         status = previous_status;
