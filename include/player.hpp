@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <atomic> 
 
 class Player {
     private:
@@ -102,8 +103,7 @@ class OnlinePlayer : public Player {
         int network_mode;
         bool connected;
         std::string pseudo;
-        int status = 0; // 0 : menu, 1 : discovery, 2 : connected, 3 : ingame
-        // 4 : lost, 5 : won
+        
 
         int gamesock_fd;
         struct sockaddr_in servaddr;
@@ -112,7 +112,7 @@ class OnlinePlayer : public Player {
         std::thread receiveThread;
 
     public:
-        
+        std::atomic<int> status = 0; // 0 : menu, 1 : discovery, 2 : connected, 3 : ingame, 4 : lost, 5 : won
         void send_packet(int input, int malus);
         uint8_t* generate_game_packet(int input, int malus);
         bool connect_to_server(GameInfo gameInfo);

@@ -111,7 +111,7 @@ void GameDiscovery::updatePlayerCount(u_int8_t currentPlayers) {
     numberOfPlayers = currentPlayers;
 }
 
-std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameType) {
+std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameType, bool localhost) {
     std::vector<GameInfo> discoveredGames;
     discosock_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (discosock_fd < 0 ) {
@@ -131,10 +131,13 @@ std::vector<GameInfo> GameDiscovery::discoverGames(int timeoutMs, uint8_t gameTy
     memset(&broadcastAddr, 0, sizeof(broadcastAddr));
     broadcastAddr.sin_family = AF_INET;
     broadcastAddr.sin_port = htons(DISCOVERY_PORT);
-    //broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255"); // broadcast
-    broadcastAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // localhost
 
-
+    if (localhost) {
+        broadcastAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // localhost
+    } else {
+        broadcastAddr.sin_addr.s_addr = inet_addr("255.255.255.255"); // broadcast
+    }
+    
     uint8_t buffer[1024];
     sockaddr_in fromAddr;
     socklen_t fromAddrLen = sizeof(fromAddr);

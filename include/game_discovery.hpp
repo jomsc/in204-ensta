@@ -46,7 +46,7 @@ public:
     void updatePlayerCount(u_int8_t currentPlayers);
     
     std::vector<GameInfo> discoverGames(int timeoutMs = 2000, 
-                                        uint8_t gameType = 1);    
+                                        uint8_t gameType = 1, bool localhost = false);    
 };
 
 #endif

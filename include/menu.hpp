@@ -9,11 +9,12 @@
 #include <thread>
 
 class Menu {
-    private:
-        std::vector<Button> buttons;
-
     public:
+        std::vector<Button> buttons;
+        
         void display(sf::RenderWindow *window, int a, int b);
+        void add_button(std::vector<int> infos, sf::Color color, 
+                        sf::Color onHoverColor, sf::Texture theTexture);
 
         // returns status that should be applied if isClicking is true, -1 otherwise
         int dest(int x, int y, bool isClicking); 

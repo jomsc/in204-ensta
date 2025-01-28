@@ -23,7 +23,7 @@ class Button {
             } else {
                 buttonSprite.setColor(buttonColor);
             }
-            buttonSprite.setPosition(this->x, this->y);
+            
             window->draw(this->buttonSprite);
         }
 
@@ -44,6 +44,7 @@ class Button {
             buttonTexture = theTexture;
             buttonSprite.setTexture(buttonTexture);
             buttonSprite.setTextureRect(this->srcRect); 
+            buttonSprite.setPosition(this->x, this->y);
 
             buttonColor = theColor;
             onHoverColor = theHoverColor;

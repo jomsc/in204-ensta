@@ -23,8 +23,10 @@ int main(int argc, char **argv)
 
     Player player = Player();
     OnlinePlayer online_player = OnlinePlayer();
+    std::string player_pseudo = "joseph";
+    online_player.setPseudo(player_pseudo);
 
-    int status = 0; // 0 : menu, 1 : classic game, 2 : LAN screen, 3 : LAN game
+    int status = 0;
     int previous_status = 0;
 
 
@@ -65,11 +67,21 @@ int main(int argc, char **argv)
     if (!bgVideoTexture.loadFromFile(videoPath)) {
         std::cout << "Error loading background video!" << std::endl;  
     }
+
+    sf::Font arial;
+    std::string fontPath = exeDir + "/assets/fonts/arial.ttf";
+    arial.loadFromFile(fontPath);
+
+    sf::Font akira;
+    fontPath = exeDir + "/assets/fonts/akira.otf";
+    akira.loadFromFile(fontPath);
+
+
     bgVideoSprite.setTexture(bgVideoTexture);
     bgVideoSprite.setScale(sf::Vector2f(scaleX, scaleY));
 
     GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
-                                        25565, 0);
+                                        25565, 2);
 
     
     // DEFINITIONS DE TOUS LES MENUS 
@@ -173,7 +185,7 @@ int main(int argc, char **argv)
     Menu pauseMenu = Menu(pauseMenuInfos, pauseMenuTexture, 
                          pauseMenuColorArray, pauseMenuHoverColorArray);        
 
-
+    std::vector<GameInfo> games;
 
 
     int mouseX = 0;
@@ -181,10 +193,15 @@ int main(int argc, char **argv)
     bool isClicking = 0;
 
     int dest = -1;
+    int game_chosen = -1;
 
 
     bool host = false; 
     bool discovery = false;
+
+    bool isHostInit = false; // is the host initialized? allows to call create game the first time
+    bool success = false;
+
 
     // parsing the args
     if (argc > 1) {
@@ -274,15 +291,51 @@ int main(int argc, char **argv)
                 break;
 
             case 2: // host LAN 
-                bgVideoSprite.setTextureRect(srcRect);
-                window.draw(bgVideoSprite);
-                hostMenu.display(&window, mouseX, mouseY);
-                dest = hostMenu.dest(mouseX, mouseY, isClicking);
-                if (dest != -1) {
-                    if (dest == -2) { window.close(); }
-                    else { 
-                        previous_status = status;
-                        status = dest; 
+                if (!isHostInit) {
+                    game_server.create_game();
+                    game_server.handle_received_packets();
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                    if (games.empty()) {
+                        games = online_player.game_discovery.discoverGames(100, 1, 1);
+                    }
+
+                    success = online_player.connect_to_server(games[0]);
+                    if (!success) {
+                        std::cout << "Failed to connect to own game oups" << std::endl;
+                        status = 0; 
+                        GameServer game_server = GameServer("zizi", "cacarthur bouvet", 
+                                            25565, 2);
+                        isHostInit = false;
+                    } else {
+                        bgVideoSprite.setTextureRect(srcRect);
+                        window.draw(bgVideoSprite);
+                        hostMenu.display(&window, mouseX, mouseY);
+                        dest = hostMenu.dest(mouseX, mouseY, isClicking);
+                        if (dest != -1) {
+                            if (dest == -2) { window.close(); }
+                            else { 
+                                previous_status = status;
+                                status = dest; 
+                            }
+                        }
+                    }
+
+                    isHostInit = true;
+                }
+
+                if (online_player.status == 2) {
+                    bgVideoSprite.setTextureRect(srcRect);
+                    window.draw(bgVideoSprite);
+                    hostMenu.display(&window, mouseX, mouseY);
+                    dest = hostMenu.dest(mouseX, mouseY, isClicking);
+                    if (dest != -1) {
+                        if (dest == -2) { window.close(); }
+                        else { 
+                            previous_status = status;
+                            status = dest; 
+                        }
                     }
                 }
                 break;
@@ -291,55 +344,89 @@ int main(int argc, char **argv)
                 bgVideoSprite.setTextureRect(srcRect);
                 window.draw(bgVideoSprite);
                 joinMenu.display(&window, mouseX, mouseY);
-                dest = joinMenu.dest(mouseX, mouseY, isClicking);
-                if (dest != -1) {
-                    if (dest == -2) { window.close(); }
-                    else { 
-                        previous_status = status;
-                        status = dest; 
-                    }
-                }
-                if (discovery) {
-                    std::vector<GameInfo> games = online_player.game_discovery.discoverGames(2000, 1);
-                    for (const auto& game : games) {
-                        std::cout << std::endl;
-                        std::cout << "Game found : " << std::endl;
-                        std::cout << "Name : " << game.gameName << std::endl;
-                        std::cout << "Address : " << game.serverIP << ":" << game.gamePort << std::endl;
-                        std::cout << "MOTD : " << game.motd << std::endl;
-                        
-                        std::cout << "Players : " << 
-                        std::to_string(game.currentPlayers) << "/" 
-                        << std::to_string(game.maxPlayers) << std::endl;
-                        
-                        std::cout << std::endl;
-                    }
-                    std::cout << "choose a game (-1 to refuse)" << std::endl;
-                    int game_chosen;
-                    std::cin >> game_chosen;
-                    
-                    if (game_chosen!=-1 && game_chosen <= games.size()) {
-                        std::string pseudo;
-                        std::cout << "choose your pseudo (16 characters max)" << std::endl;
-                        std::cin >> pseudo;
-                        pseudo.resize(16, ' ');
-                        online_player.setPseudo(pseudo);
-                        bool success = false;
-                        //std::cout << "pseudo chosen : " << online_player.getPseudo() << std::endl;
-                        std::cout << "address : " << games[game_chosen].serverIP << std::endl;
-                        
-                        success = online_player.connect_to_server(games[game_chosen]);
-                        if (success) {
-                            status = 4;
-                            std::cout << "status : " << status << std::endl;
-                        }
-                    }
-                }
-                //std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 
+                if (games.empty()) {
+                    games = online_player.game_discovery.discoverGames(100, 1, 0);
+                }
+                
+                // display games
+                for (int i=0;i<games.size();i++) {
+                    int xOffset = 525;
+                    int yOffset = 317+120*i;
+
+                    // display game name
+                    sf::Text game_name_text(games[i].gameName, arial);
+                    game_name_text.setCharacterSize(40);
+                    game_name_text.setStyle(sf::Text::Bold);
+                    game_name_text.setFillColor(sf::Color::White);
+                    game_name_text.setPosition(xOffset, yOffset);
+                    window.draw(game_name_text);
+
+                    // display game MOTD
+                    sf::Text motd_text(games[i].motd, arial);
+                    motd_text.setCharacterSize(25);
+                    motd_text.setStyle(sf::Text::Regular);
+                    motd_text.setFillColor(sf::Color::White);
+                    motd_text.setPosition(xOffset, yOffset+50);
+                    window.draw(motd_text);
+
+                    // display number of players
+                    std::string players = std::to_string(games[i].currentPlayers)
+                                        + "/" + std::to_string(games[i].maxPlayers);
+                    sf::Text players_text(players, arial);
+                    players_text.setCharacterSize(65);
+                    players_text.setStyle(sf::Text::Regular);
+                    players_text.setFillColor(sf::Color::Yellow);
+                    players_text.setPosition(xOffset+400, yOffset+5);
+                    window.draw(players_text);    
+
+                    joinMenu.add_button(std::vector<int>{ xOffset+660, yOffset+20, 218, 56, 0, 510, 4 }, 
+                                        sf::Color::Green, sf::Color::Blue, joinMenuTexture);
+                }
+
+                // choose a game with mouse
+                for (int i=0;i<games.size();i++) {
+                    if (joinMenu.buttons[i+1].isInside(mouseX, mouseY) && isClicking) {
+                        game_chosen = i;
+                    }
+                }
+                    
+                if (game_chosen!=-1 && game_chosen <= games.size()) {
+                    //std::cout << "pseudo chosen : " << online_player.getPseudo() << std::endl;
+                    std::cout << "address : " << games[game_chosen].serverIP << std::endl;
+                    
+                    success = online_player.connect_to_server(games[game_chosen]);
+                    if (success) {
+                        status = 4;
+                    }
+                }
                 break;
+
             case 4: // waiting LAN
-                break;
+                if (online_player.status == 2) {
+                    bgVideoSprite.setTextureRect(srcRect);
+                    window.draw(bgVideoSprite);
+
+
+                    sf::Text name_text(games[game_chosen].gameName, akira);
+                    name_text.setCharacterSize(100);
+                    name_text.setStyle(sf::Text::Bold);
+                    name_text.setFillColor(sf::Color::White);
+                    name_text.setPosition(50, 50);
+                    window.draw(name_text);
+                    
+                    std::string waiting_string = "Waiting for game start !";
+                    sf::Text waiting_text(waiting_string, akira);
+                    waiting_text.setCharacterSize(70);
+                    waiting_text.setStyle(sf::Text::Bold);
+                    waiting_text.setFillColor(sf::Color::Yellow);
+                    waiting_text.setPosition(50, 160);
+                    window.draw(waiting_text);
+                    break;
+                } else {
+                    if (online_player.status == 3) { status = 5; }
+                }
+                
             case 5: // in-game LAN
                 break;
 
@@ -359,6 +446,10 @@ int main(int argc, char **argv)
                     }
                 }
                 break; 
+
+            case 8:
+                // pause for in-game, we still have to update the online_player.
+                break;
 
             default:
                 break;
