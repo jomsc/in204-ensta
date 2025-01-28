@@ -5,6 +5,7 @@
 #include "game_discovery.hpp"
 
 #include <vector>
+#include <atomic>
 
 class GameServer {
     private:
@@ -14,7 +15,6 @@ class GameServer {
         std::vector<uint32_t> scores;
         std::vector<uint8_t> levels;
         std::vector<int> loss_list;
-        GameDiscovery gameDiscovery = GameDiscovery();
         std::vector<int> piece_list; // liste des pieces generees
         std::vector<int> rand_index; // index pour chaque joueur, ou il en est
 
@@ -37,6 +37,7 @@ class GameServer {
 
 
     public:
+        GameDiscovery gameDiscovery = GameDiscovery();
         GameServer() {
             gameInfo.gameName = "A Tetris Game";
             gameInfo.motd = "Welcome to my game!";
@@ -69,6 +70,8 @@ class GameServer {
         uint8_t* generate_game_packet(int playerIndex);
         bool declare_victory();
         void delete_game();
+
+        int maxPlayers() { return this->gameInfo.maxPlayers; }
 };
 
 class RivalsServer : public GameServer {

@@ -309,30 +309,40 @@ int main(int argc, char **argv)
                                             25565, 2);
                         isHostInit = false;
                     } else {
-                        bgVideoSprite.setTextureRect(srcRect);
-                        window.draw(bgVideoSprite);
-                        hostMenu.display(&window, mouseX, mouseY);
-                        dest = hostMenu.dest(mouseX, mouseY, isClicking);
-                        if (dest != -1) {
-                            if (dest == -2) { window.close(); }
-                            else { 
-                                previous_status = status;
-                                status = dest; 
-                            }
-                        }
+                        isHostInit = true;
                     }
-
-                    isHostInit = true;
                 }
 
                 if (online_player.status == 2) {
+                    int xOffset = 525;
+                    int yOffset = 317;
                     bgVideoSprite.setTextureRect(srcRect);
                     window.draw(bgVideoSprite);
                     hostMenu.display(&window, mouseX, mouseY);
+
+                    // display number of connected players :
+                    std::string players_text = "Number of Players : " +
+                    std::to_string(game_server.gameDiscovery.numberOfPlayers)
+                    + "/" + std::to_string(game_server.maxPlayers());
+
+                    sf::Text players_txt(players_text, arial);
+                    players_txt.setCharacterSize(40);
+                    players_txt.setStyle(sf::Text::Bold);
+                    players_txt.setFillColor(sf::Color::White);
+                    players_txt.setPosition(xOffset, yOffset);
+                    window.draw(players_txt);
+
                     dest = hostMenu.dest(mouseX, mouseY, isClicking);
                     if (dest != -1) {
                         if (dest == -2) { window.close(); }
                         else { 
+                            if (dest == 5) {
+                                if (!game_server.start_game()) {
+                                    std::cout << "failed to start game" << std::endl;
+                                } else {
+                                    std::cout << "GAME STAZRT" << std::endl;
+                                }
+                            }
                             previous_status = status;
                             status = dest; 
                         }
