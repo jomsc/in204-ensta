@@ -104,13 +104,19 @@ void Grid::draw_waiting_piece(sf::RenderWindow *window, Piece waiting_piece,int 
     }
 }
 
-void Grid::spawn(int type) {
+void Grid::spawn(int type, bool* fin) {
     pieces.emplace_back(2, 0, 0, type, 1);
 
     for (int i=0;i<4;i++) {
         for (int j=0;j<4;j++) {
             if (pieces[pieces.size()-1].shape[4*i+j] == 1) {
-                this->cells[(pieces[pieces.size()-1].y+i)*numcols+pieces[pieces.size()-1].x+j] = 0;
+                if(this->cells[(pieces[pieces.size()-1].y+i)*numcols+pieces[pieces.size()-1].x+j] <= 0)
+                {
+                   this->cells[(pieces[pieces.size()-1].y+i)*numcols+pieces[pieces.size()-1].x+j] = 0; 
+                }
+                else{
+                    *fin=true;
+                }
             }
         }
     }

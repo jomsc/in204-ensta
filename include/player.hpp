@@ -57,6 +57,7 @@ class Player {
         bool lock_in=false;
         bool right_wall= false;
         bool left_wall= false;
+        bool fin=false;
 
         sf::Clock soft_lock_clock;
         
@@ -88,7 +89,7 @@ class Player {
             rotate_clock.restart();
             movement_clock.restart();
 
-            grid.spawn(rand()%7);
+            grid.spawn(rand()%7, &fin);
         }
 
         float get_speed(int level) {

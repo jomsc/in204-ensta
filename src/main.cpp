@@ -4,12 +4,23 @@
 #include "filesystem_resolve.hpp"
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <chrono>
 
+sf::Music main_menu_theme;
 
 int main(int argc, char **argv) 
 {
+    std::string exeDir = getExecutableDirectory();
+
+    if(!main_menu_theme.openFromFile(exeDir+"/assets/audios_and_loops/synthwave_loop.wav"))
+        return -1;
+    main_menu_theme.setLoop(true);
+    main_menu_theme.setVolume(50.f);
+
+
+
 
     sf::VideoMode ecran = sf::VideoMode::getDesktopMode();
     int VIDEO_WIDTH= ecran.width;
@@ -58,7 +69,7 @@ int main(int argc, char **argv)
     }
     
 
-    std::string exeDir = getExecutableDirectory();
+    
     std::string videoPath = exeDir + "/assets/background_vid/out.jpeg";
 
 
@@ -236,6 +247,8 @@ int main(int argc, char **argv)
         game_server.handle_received_packets();
     }   
 
+    main_menu_theme.play();
+
     while (window.isOpen() || debug_headless) {
         clock.restart();
         window.clear();
@@ -271,6 +284,12 @@ int main(int argc, char **argv)
                 bgVideoSprite.setTextureRect(srcRect);
                 window.draw(bgVideoSprite);
                 player.display(&window);
+                if(player.fin){
+                    status=0;
+                    player.fin=false;
+                    player = Player();
+                    std::cout << "Partie terminée" << std::endl;
+                }
                 break;
 
             case 2: // host LAN 

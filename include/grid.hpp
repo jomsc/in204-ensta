@@ -23,7 +23,7 @@ class Grid {
         
         void draw(sf::RenderWindow *window, int score, int level, int buffer[3]);
         void draw_in_cell(sf::RenderWindow *window, int x, int y, sf::Color color);
-        void spawn(int type);
+        void spawn(int type, bool* fin);
         void update(bool* floor, bool* left_wall, bool* right_wall, bool* lock_in);
         void top_out();
         void draw_waiting_piece(sf::RenderWindow *window, Piece waiting_piece,int queue_pos);

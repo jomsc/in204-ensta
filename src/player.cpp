@@ -180,7 +180,7 @@ void Player::update() {
         left_wall=false;
         right_wall=false;
         floor=false;
-        grid.spawn(this->buffer[0]);
+        grid.spawn(this->buffer[0], &fin);
         spawn_wait_clock.restart();
         update_next_pieces();
     }

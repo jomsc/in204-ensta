@@ -45,6 +45,7 @@ target_link_libraries(${PROJECT_NAME}
         sfml-graphics 
         sfml-window 
         sfml-system
+        sfml-audio
 )
 
 # Include directories
