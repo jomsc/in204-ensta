@@ -1,12 +1,13 @@
 # in204-ensta
 ### Projet IN204 de Simon DROUET et Joseph MOUSCADET
 Pour exécuter le code, clonez le repo, et exécutez :
-```mkdir build
+```
+mkdir build
 cd build
 cmake ..
 make && bin/TETRIS_RIVALS
 ```
-
+Requiert cmake (version >=3.14), et libsfml-dev (version 2.5) si cmake ne parvient pas a la télécharger.
 
 ## To-Do List
 - [ ] netcode
