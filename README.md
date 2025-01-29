@@ -4,7 +4,8 @@ Pour exécuter le code, clonez le repo, et exécutez :
 ```mkdir build
 cd build
 cmake ..
-make && bin/TETRIS_RIVALS```
+make && bin/TETRIS_RIVALS
+```
 
 
 ## To-Do List
